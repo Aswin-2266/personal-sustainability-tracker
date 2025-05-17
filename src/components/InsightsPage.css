@@ -1,0 +1,230 @@
+/* InsightsPage.css */
+
+:root {
+  --primary: #4361ee;
+  --primary-light: #4895ef;
+  --secondary: #3a0ca3;
+  --accent: #f72585;
+  --success: #4cc9f0;
+  --warning: #f8961e;
+  --danger: #ef233c;
+  --light: #f8f9fa;
+  --dark: #212529;
+  --gray: #6c757d;
+  --card-bg: #ffffff;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.insights-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--dark);
+}
+
+.insights-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.insights-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.footprint-display {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.footprint-display:hover {
+  transform: translateY(-5px);
+}
+
+.footprint-display h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--dark);
+}
+
+.footprint-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 1rem 0;
+}
+
+.recommendations-container {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.recommendations-container h4 {
+  font-size: 1.25rem;
+  color: var(--secondary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary-light);
+}
+
+.recommendations-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.recommendations-list li {
+  background: rgba(72, 149, 239, 0.1);
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.recommendations-list li:before {
+  content: "•";
+  color: var(--primary);
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.recommendations-list li:hover {
+  background: rgba(72, 149, 239, 0.2);
+  transform: translateX(5px);
+}
+
+.no-recommendations {
+  color: var(--gray);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Carbon footprint level indicators */
+.low-footprint {
+  color: var(--success);
+}
+
+.medium-footprint {
+  color: var(--warning);
+}
+
+.high-footprint {
+  color: var(--danger);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .insights-container {
+    padding: 1rem;
+  }
+  
+  .footprint-display, 
+  .recommendations-container {
+    padding: 1.5rem;
+  }
+  
+  .footprint-value {
+    font-size: 2rem;
+  }
+  /* Challenges Section - Improvements */
+.challenges-container {
+  margin-top: 30px;
+  padding: 25px;
+  background-color: #f4f6f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: all 0.3s ease;
+}
+
+h4 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.challenges-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.challenges-list li {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 15px 25px;
+  margin: 12px 0;
+  background-color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.challenges-list li:hover {
+  background-color: #e0f7fa;
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.challenge-completed {
+  background-color: #d4edda;
+  color: #155724;
+  text-decoration: line-through;
+  transform: translateY(0px);
+  cursor: not-allowed;
+}
+
+.challenge-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.challenge-completed span {
+  font-size: 14px;
+  color: #28a745;
+  font-weight: 600;
+}
+
+.challenge-pending span {
+  font-size: 14px;
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.challenge-completed:hover {
+  background-color: #c3e6cb;
+  cursor: not-allowed;
+}
+
+.challenge-pending:hover {
+  background-color: #fff9c4;
+  transform: translateY(0px);
+}
+
+
+}
