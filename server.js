@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const { sendLoginEmail } = require('./src/components/Mailer');
 
+
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -17,6 +18,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT || 5432,
 });
+
 
 const runSchema = async () => {
   try {
@@ -29,8 +31,9 @@ const runSchema = async () => {
   }
 };
 
-// Run it once when starting the server
+
 runSchema();  
+
 
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
@@ -40,26 +43,28 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
+
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); 
 
 
-
-// Middleware to authenticate JWT
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   
-  if (!token) return res.sendStatus(401);
+  if (!token) return res.sendStatus(401); 
   
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
+    if (err) {
+        console.error("JWT verification failed:", err); 
+        return res.sendStatus(403); 
+    }
+    req.user = user; 
+    next(); 
   });
 };
 
-// User Registration
+
 app.post('/api/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -72,53 +77,67 @@ app.post('/api/register', async (req, res) => {
 
     const user = result.rows[0];
 
-    // Insert into leaderboard with 0 points
+    
     await pool.query(
       'INSERT INTO leaderboard (user_id, username, points) VALUES ($1, $2, $3)',
       [user.id, user.username, 0]
     );
 
-    await sendLoginEmail(email, username);
     
-    res.status(201).json(result.rows[0]);
+    
+    
+    res.status(201).json(user); 
   } catch (err) {
     console.error('Registration error:', err);
+    
+    if (err.code === '23505') { 
+        return res.status(409).json({ error: 'Email or username already exists.' });
+    }
     res.status(500).json({ error: 'Registration failed' });
   }
 });
 
-// User Login
+
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-  if (result.rows.length === 0) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const user = result.rows[0];
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    
+    
+
+    
+    const token = jwt.sign(
+      { id: user.id, email: user.email, username: user.username }, 
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' } 
+    );
+    
+    console.log('User logged in:', user.username); 
+
+    
+    res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  const user = result.rows[0];
-  const validPassword = await bcrypt.compare(password, user.password_hash);
-  if (!validPassword) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-
-  // await sendLoginEmail(email, user.username);
-
-  const token = jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: '24h' }
-  );
-  console.log(user); 
-
-  res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
 });
 
 
-// Protected sustainability data endpoint
+
 app.post('/api/sustainability', authenticateToken, async (req, res) => {
   try {
-    const { user } = req;
+    const { user } = req; 
     const {
       commute_type,
       commute_distance,
@@ -138,9 +157,10 @@ app.post('/api/sustainability', authenticateToken, async (req, res) => {
         food_weight, 
         electricity_used, 
         water_consumption, 
-        plastic_items_used
+        plastic_items_used,
+        created_at
       ) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
       RETURNING *
     `;
 
@@ -158,60 +178,79 @@ app.post('/api/sustainability', authenticateToken, async (req, res) => {
     const result = await pool.query(query, values);
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error('Error saving data:', err);
+    console.error('Error saving sustainability data:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Get user's sustainability data
+
 app.get('/api/sustainability', authenticateToken, async (req, res) => {
   try {
-    const { user } = req;
-    const result = await pool.query(
-      'SELECT * FROM sustainability_data WHERE user_id = $1 ORDER BY created_at DESC',
-      [user.id]
-    );
+    const { user } = req; 
+    const query = `
+      SELECT 
+        id, user_id, commute_type, commute_distance, diet_type, food_weight, 
+        electricity_used, water_consumption, plastic_items_used,
+        -- FIX: Convert 'created_at' to UTC before formatting if it's TIMESTAMP WITHOUT TIME ZONE
+        -- Replace 'Your/Server/Timezone' with the actual timezone your PostgreSQL server operates in.
+        -- Examples: 'Asia/Kolkata', 'America/New_York', 'Europe/London'
+        TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS created_at
+      FROM sustainability_data 
+      WHERE user_id = $1 
+      ORDER BY created_at DESC`; 
+      
+    const result = await pool.query(query, [user.id]);
     res.json(result.rows);
   } catch (err) {
-    console.error('Error fetching data:', err);
+    console.error('Error fetching sustainability data:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Token verification endpoint
+
 app.get('/api/verify', authenticateToken, (req, res) => {
-  res.json({ user: req.user }); // Send back the decoded user info
+  
+  res.json({ user: req.user }); 
 });
 
+
 app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user.id; 
   const { period } = req.params;
 
   let query = '';
   let values = [userId];
 
-  // Adjust the query based on the selected period
+  
+  const dateFormat = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'; 
+
   if (period === 'today') {
     query = `
-      SELECT created_at AS date, commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
+      SELECT 
+        TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', '${dateFormat}') AS created_at, 
+        commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
       FROM sustainability_data 
       WHERE user_id = $1 
         AND created_at >= CURRENT_DATE
-      ORDER BY date ASC`;
+      ORDER BY created_at ASC`;
   } else if (period === 'weekly') {
     query = `
-      SELECT created_at AS date, commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
+      SELECT 
+        TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', '${dateFormat}') AS created_at, 
+        commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
       FROM sustainability_data 
       WHERE user_id = $1 
         AND created_at >= CURRENT_DATE - INTERVAL '7 days'
-      ORDER BY date ASC`;
+      ORDER BY created_at ASC`;
   } else if (period === 'monthly') {
     query = `
-      SELECT created_at AS date, commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
+      SELECT 
+        TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', '${dateFormat}') AS created_at, 
+        commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
       FROM sustainability_data 
       WHERE user_id = $1 
         AND created_at >= CURRENT_DATE - INTERVAL '1 month'
-      ORDER BY date ASC`;
+      ORDER BY created_at ASC`;
   } else {
     return res.status(400).json({ error: 'Invalid period' });
   }
@@ -220,68 +259,64 @@ app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
     const result = await pool.query(query, values);
     res.json(result.rows);
   } catch (err) {
-    console.error('Error fetching progress data:', err);
+    console.error(`Error fetching ${period} progress data:`, err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
     
-
 const insightsRoute = require('./routes/insights');
-
-app.use(express.json());
 app.use('/api/insights', insightsRoute);
 
-// server.js (Backend)
-const db = require('./server');  // Assume you have a database connection module
-
-app.use(express.json());
-
-// Endpoint to get leaderboard
-app.get('/api/community/leaderboard', (req, res) => {
-  const query = 'SELECT username, points FROM leaderboard ORDER BY points DESC LIMIT 10'; // Top 10 leaderboard
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error fetching leaderboard data:', err);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
+app.get('/api/community/leaderboard', authenticateToken, async (req, res) => {
+  try {
+    const query = 'SELECT username, points FROM leaderboard ORDER BY points DESC LIMIT 10'; 
+    const results = await pool.query(query); 
+    
     if (results.rows.length === 0) {
       return res.status(404).json({ message: 'No leaderboard data found' });
     }
     console.log('Leaderboard Data:', results.rows);
     res.json(results.rows);
-  });
+  } catch (err) {
+    console.error('Error fetching leaderboard data:', err);
+    res.status(500).json({ message: 'Internal Server Error: Could not fetch leaderboard.' });
+  }
 });
 
-// Example of adding points to a user (when they log an activity)
-app.post('/api/user/activity', (req, res) => {
-  const { userId, activityType } = req.body;
+app.post('/api/user/activity', authenticateToken, async (req, res) => {
+  const userId = req.user.id; 
+  const { activityType } = req.body; 
   
-  if (!userId || !activityType) {
-    return res.status(400).json({ message: 'Missing required fields: userId and activityType' });
+  if (!activityType) {
+    return res.status(400).json({ message: 'Missing required field: activityType' });
   }
   
   let points = 0;
   
-  // Example of assigning points based on activity
   if (activityType === 'commute') points = 10;
   else if (activityType === 'recycle') points = 5;
-  // Add other activities and their points here...
+  else if (activityType === 'water_reduction') points = 8; 
+  else if (activityType === 'plastic_reduction') points = 7; 
+  
+  if (points === 0) {
+      return res.status(400).json({ message: 'Unknown activity type or no points assigned.' });
+  }
 
-  // Update points in the database
-  const query = 'UPDATE leaderboard SET points = points + $1 WHERE user_id = $2';
-  db.query(query, [points, userId], (err, results) => {
-    if (err) {
-      console.error('Error updating points:', err);
-      return res.status(500).json({ message: 'Error updating points. Please try again later.' });
+  try {
+    const query = 'UPDATE leaderboard SET points = points + $1 WHERE user_id = $2 RETURNING points';
+    const result = await pool.query(query, [points, userId]); 
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'User not found in leaderboard.' });
     }
-    res.status(200).json({ message: 'Points updated successfully' });
-  });
+
+    res.status(200).json({ message: 'Points updated successfully', newPoints: result.rows[0].points });
+  } catch (err) {
+    console.error('Error updating points:', err);
+    res.status(500).json({ message: 'Error updating points. Please try again later.' });
+  }
 });
-
-
-
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-

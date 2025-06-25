@@ -1,4 +1,4 @@
-/* Community.css */
+
 :root {
   --primary: #4361ee;
   --primary-light: #4895ef;
@@ -126,7 +126,7 @@
   font-style: italic;
 }
 
-/* Medal styling for top 3 positions */
+
 .leaderboard-table tr:first-child td:first-child::before {
   content: "🥇";
   margin-right: 0.5rem;
@@ -142,7 +142,7 @@
   margin-right: 0.5rem;
 }
 
-/* Responsive adjustments */
+
 @media (max-width: 768px) {
   .community-container {
     padding: 1rem;

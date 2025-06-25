@@ -1,230 +1,304 @@
-/* InsightsPage.css */
+
 
 :root {
-  --primary: #4361ee;
-  --primary-light: #4895ef;
-  --secondary: #3a0ca3;
-  --accent: #f72585;
-  --success: #4cc9f0;
-  --warning: #f8961e;
-  --danger: #ef233c;
-  --light: #f8f9fa;
-  --dark: #212529;
-  --gray: #6c757d;
-  --card-bg: #ffffff;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    
+    --primary: #5A827E;         
+    --primary-light: #84AE92;   
+    --primary-lighter-green: #B9D4AA; 
+    --primary-dark: #3F5B59;    
+
+    
+    --accent: #FAFFCA;          
+    --accent-dark: #E6E8B9;     
+
+    
+    --light: #F8F9FA;           
+    --dark: #343a40;            
+    --gray: #6c757d;            
+    --light-gray: #dee2e6;      
+
+    
+    --success: var(--primary-light); 
+    --warning: #ffc107;         
+    --danger: #dc3545;          
+    --info: #8FA39D;            
+
+    
+    --card-bg: #ffffff;
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
 }
 
 .insights-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--dark);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--dark);
+    background-color: var(--light); 
 }
 
 .insights-header {
-  margin-bottom: 2rem;
-  text-align: center;
+    margin-bottom: 2rem;
+    text-align: center;
 }
 
 .insights-header h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 1rem;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent; 
 }
 
 .footprint-display {
-  background: var(--card-bg);
-  border-radius: 16px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: var(--shadow);
-  text-align: center;
-  transition: transform 0.3s ease;
+    background: var(--card-bg);
+    border-radius: var(--border-radius-lg); 
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform 0.3s ease;
+    border: 1px solid var(--light-gray); 
 }
 
 .footprint-display:hover {
-  transform: translateY(-5px);
+    transform: translateY(-5px);
 }
 
 .footprint-display h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: var(--dark);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--dark);
 }
 
 .footprint-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--primary);
-  margin: 1rem 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary); 
+    margin: 1rem 0;
 }
 
-.recommendations-container {
-  background: var(--card-bg);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: var(--shadow);
-}
 
-.recommendations-container h4 {
-  font-size: 1.25rem;
-  color: var(--secondary);
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--primary-light);
-}
-
-.recommendations-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.recommendations-list li {
-  background: rgba(72, 149, 239, 0.1);
-  margin-bottom: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid var(--primary);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-}
-
-.recommendations-list li:before {
-  content: "•";
-  color: var(--primary);
-  font-weight: bold;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-}
-
-.recommendations-list li:hover {
-  background: rgba(72, 149, 239, 0.2);
-  transform: translateX(5px);
-}
-
-.no-recommendations {
-  color: var(--gray);
-  font-style: italic;
-  text-align: center;
-}
-
-/* Carbon footprint level indicators */
 .low-footprint {
-  color: var(--success);
+    color: var(--success); 
 }
 
 .medium-footprint {
-  color: var(--warning);
+    color: var(--warning); 
 }
 
 .high-footprint {
-  color: var(--danger);
+    color: var(--danger); 
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .insights-container {
+
+.recommendations-container {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-lg); 
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem; 
+    border: 1px solid var(--light-gray); 
+}
+
+.recommendations-container h4 {
+    font-size: 1.25rem;
+    color: var(--primary-dark); 
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-light); 
+}
+
+.recommendations-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.recommendations-list li {
+    
+    background: rgba(var(--primary-light), 0.1); 
+    margin-bottom: 1rem;
     padding: 1rem;
-  }
-  
-  .footprint-display, 
-  .recommendations-container {
-    padding: 1.5rem;
-  }
-  
-  .footprint-value {
-    font-size: 2rem;
-  }
-  /* Challenges Section - Improvements */
-.challenges-container {
-  margin-top: 30px;
-  padding: 25px;
-  background-color: #f4f6f9;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 650px;
-  margin-left: auto;
-  margin-right: auto;
-  transition: all 0.3s ease;
+    border-radius: var(--border-radius-sm); 
+    border-left: 4px solid var(--primary); 
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    color: var(--dark); 
 }
 
-h4 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 20px;
-  text-align: center;
+.recommendations-list li:before {
+    content: "•";
+    color: var(--primary); 
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.recommendations-list li:hover {
+    
+    background: rgba(var(--primary-light), 0.2); 
+    transform: translateX(5px);
+}
+
+.no-recommendations {
+    color: var(--gray);
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+}
+
+
+.challenges-container {
+    margin-top: 2rem; 
+    padding: 2rem; 
+    background-color: var(--card-bg); 
+    border-radius: var(--border-radius-md); 
+    box-shadow: var(--shadow); 
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: all 0.3s ease;
+    border: 1px solid var(--light-gray); 
+}
+
+.challenges-container h4 {
+    font-size: 1.5rem; 
+    font-weight: 700;
+    color: var(--primary); 
+    margin-bottom: 1.5rem; 
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-light); 
 }
 
 .challenges-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.challenges-list li {
-  font-size: 18px;
-  font-weight: 600;
-  padding: 15px 25px;
-  margin: 12px 0;
-  background-color: #fff;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.challenge-item { 
+    font-size: 1rem; 
+    font-weight: 500; 
+    padding: 1rem 1.5rem; 
+    margin: 0.8rem 0; 
+    background-color: var(--light); 
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center; 
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); 
+    color: var(--dark); 
 }
 
-.challenges-list li:hover {
-  background-color: #e0f7fa;
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.challenge-item input[type="checkbox"] {
+    margin-right: 0.8rem; 
+    width: 1.2em; 
+    height: 1.2em;
+    cursor: pointer;
+    accent-color: var(--primary); 
+}
+
+.challenge-item:hover {
+    background-color: var(--primary-lighter-green); 
+    transform: translateY(-3px); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12); 
 }
 
 .challenge-completed {
-  background-color: #d4edda;
-  color: #155724;
-  text-decoration: line-through;
-  transform: translateY(0px);
-  cursor: not-allowed;
+    background-color: var(--primary-light); 
+    color: white; 
+    text-decoration: line-through;
+    opacity: 0.8;
+    transform: translateY(0); 
+    cursor: not-allowed;
+    box-shadow: none; 
+}
+
+.challenge-completed .challenge-name {
+    color: white; 
+}
+
+.challenge-completed .completion-status {
+    color: var(--accent); 
+    font-weight: 600;
+    margin-left: 0.5rem;
 }
 
 .challenge-pending {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.challenge-completed span {
-  font-size: 14px;
-  color: #28a745;
-  font-weight: 600;
-}
-
-.challenge-pending span {
-  font-size: 14px;
-  color: #ffc107;
-  font-weight: 600;
-}
-
-.challenge-completed:hover {
-  background-color: #c3e6cb;
-  cursor: not-allowed;
+    
+    color: var(--dark);
 }
 
 .challenge-pending:hover {
-  background-color: #fff9c4;
-  transform: translateY(0px);
+    
+    background-color: var(--primary-lighter-green);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.no-challenges {
+    color: var(--gray);
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
 }
 
 
+
+@media (max-width: 768px) {
+    .insights-container {
+        padding: 1rem;
+    }
+    
+    .insights-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .footprint-display, 
+    .recommendations-container,
+    .challenges-container { 
+        padding: 1.5rem;
+    }
+    
+    .footprint-value {
+        font-size: 2rem;
+    }
+
+    .recommendations-container h4,
+    .challenges-container h4 {
+        font-size: 1.1rem;
+    }
+
+    .recommendations-list li {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+    }
+
+    .recommendations-list li:before {
+        font-size: 1.2rem;
+        margin-right: 0.8rem;
+    }
+
+    .challenge-item {
+        font-size: 0.9rem;
+        padding: 0.8rem 1rem;
+    }
+
+    .challenge-item input[type="checkbox"] {
+        width: 1em;
+        height: 1em;
+    }
+    .challenge-completed .completion-status {
+        font-size: 0.75rem;
+    }
 }
+

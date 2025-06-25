@@ -1,43 +1,139 @@
-import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
 import axios from 'axios';
+import { useAuth } from './AuthContext'; 
+
 
 function WeeklyProgressChart() {
-  const [data, setData] = useState([]);
+  const { token, loading: authLoading } = useAuth(); 
+  const [data, setData] = useState([]); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
 
-  const fetchProgress = async (period) => {
-    try {
-      const token = localStorage.getItem('token'); // assuming token is stored here
-      const response = await axios.get(`http://localhost:5000/api/user-progress/${period}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setData(response.data);
-    } catch (error) {
-      console.error('Failed to fetch user progress:', error);
-    }
+  
+  const chartColors = {
+    commute: '#673AB7',     
+    food: '#00ACC1',        
+    electricity: '#FFCA28', 
+    water: '#9575CD',       
+    plastic: '#EF5350',     
   };
 
+  
+  const fetchProgress = useCallback(async () => {
+    if (authLoading) {
+      return;
+    }
+    if (!token) {
+      setError('Authentication required to view weekly progress.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true); 
+    setError(null); 
+    setData([]); 
+
+    try {
+      
+      const response = await axios.get(`http://localhost:5000/api/user-progress/weekly`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      
+      
+      const processedData = response.data.map(entry => {
+        const dateObject = new Date(entry.created_at); 
+
+        let formattedDate;
+        if (isNaN(dateObject.getTime())) {
+          
+          formattedDate = 'Invalid Date'; 
+          console.warn('Invalid date detected for entry (WeeklyProgressChart frontend fallback):', entry.created_at); 
+        } else {
+          formattedDate = dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        return {
+          ...entry, 
+          date: formattedDate,
+        };
+      });
+      
+      setData(processedData); 
+    } catch (err) {
+      console.error('Failed to fetch user weekly progress:', err);
+      if (err.response) {
+        setError(err.response.data.error || 'Failed to load weekly progress data.');
+      } else if (err.request) {
+        setError('Network error: No response from server.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    } finally {
+      setLoading(false); 
+    }
+  }, [token, authLoading]); 
+
+  
   useEffect(() => {
-    fetchProgress('weekly'); // fetch data when component mounts or timePeriod changes
+    fetchProgress();
+  }, [fetchProgress]);
+
+  
+  const formatXAxisTick = useCallback((tick) => {
+    return tick; 
   }, []);
 
-
   return (
-    <div style={{ width: '100%', height: 300 }}>
-      <ResponsiveContainer>
-        <LineChart data={data}>
-          <CartesianGrid stroke="#ccc" />
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="commute_distance" stroke="#8884d8" name="Commute (km)" />
-          <Line type="monotone" dataKey="food_weight" stroke="#82ca9d" name="Food (kg)" />
-          <Line type="monotone" dataKey="electricity_used" stroke="#ffc658" name="Electricity (kWh)" />
-          <Line type="monotone" dataKey="water_consumption" stroke="#00c49f" name="Water (L)" />
-          <Line type="monotone" dataKey="plastic_items_used" stroke="#ff8042" name="Plastic Items" />
-        </LineChart>
-      </ResponsiveContainer>
+    <div style={{ width: '100%', height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--card-bg)', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-light)', border: '1px solid var(--border-light)' }}>
+      {loading ? (
+        <p className="loading-message">Loading weekly progress...</p>
+      ) : error ? (
+        <p className="error-message">Error: {error}</p>
+      ) : data.length === 0 ? (
+        <p className="no-data-message">No weekly sustainability data available. Log activities to see your progress!</p>
+      ) : (
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={data}
+            margin={{
+              top: 5, right: 30, left: 80, bottom: 5, 
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+            <XAxis 
+              dataKey="date" 
+              tickFormatter={formatXAxisTick} 
+              stroke="var(--text-medium)" 
+              tickLine={false} 
+              axisLine={false}
+            />
+            <YAxis 
+              stroke="var(--text-medium)" 
+              tickLine={false} 
+              axisLine={false}
+              label={{ value: 'Value (km/kg/kWh/L/items)', angle: -90, position: 'insideLeft', fill: 'var(--text-medium)', offset: -20 }} 
+            />
+            <Tooltip 
+              contentStyle={{ backgroundColor: 'var(--card-bg)', border: `1px solid var(--border-light)`, borderRadius: 'var(--border-radius-sm)' }}
+              labelStyle={{ color: 'var(--primary-dark)', fontWeight: 'bold' }}
+              itemStyle={{ color: 'var(--text-dark)' }}
+              
+            />
+            <Legend wrapperStyle={{ paddingTop: '10px' }} />
+            
+            {/* Individual lines for each sustainability metric */}
+            <Line type="monotone" dataKey="commute_distance" stroke={chartColors.commute} name="Commute (km)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="food_weight" stroke={chartColors.food} name="Food (kg)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="electricity_used" stroke={chartColors.electricity} name="Electricity (kWh)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="water_consumption" stroke={chartColors.water} name="Water (L)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="plastic_items_used" stroke={chartColors.plastic} name="Plastic Items" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 }

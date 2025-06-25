@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+
+
+import './AuthContext.css'; 
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -10,10 +14,13 @@ function Signup() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');  // <-- new state for success message
+  const [success, setSuccess] = useState(''); 
+  const [showPassword, setShowPassword] = useState(false); 
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -21,83 +28,120 @@ function Signup() {
     });
   };
 
+  
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+    e.preventDefault(); 
+    setError(''); 
+    setSuccess(''); 
 
+    
     if (formData.password !== formData.confirmPassword) {
-      return setError('Passwords do not match');
+      return setError('Passwords do not match.');
     }
 
     try {
-      await register(formData.username, formData.email, formData.password);
-      setSuccess('Signup successful! You can now log in.');
+      await register(formData.username, formData.email, formData.password); 
+      setSuccess('Signup successful! You can now log in.'); 
       
-      // Reset only password fields (password & confirmPassword)
+      
       setFormData(prev => ({
         ...prev,
         password: '',
         confirmPassword: ''
       }));
 
-      // Optionally, you can redirect after a delay:
-      setTimeout(() => navigate('/dashboard'), 1000);
+      
+      setTimeout(() => navigate('/login'), 2000); 
       
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
     }
   };
 
   return (
-    <div className="auth-form">
-      <h2>Sign Up</h2>
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}  {/* Show success message */}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Username</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Sign Up</button>
-      </form>
-      <p>Already have an account? <a href="/login">Log in</a></p>
+    <div className="auth-page-container"> {}
+      <h1 className="app-title"> {}
+        PERSONAL SUSTAINABILITY TRACKER
+      </h1>
+      <div className="auth-form-card"> {}
+        <h2>Sign Up</h2>
+        {}
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username" 
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email" 
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="form-group password-group"> {}
+            <label htmlFor="password">Password</label>
+            <div className="password-input-wrapper"> {}
+              <input
+                id="password" 
+                type={showPassword ? 'text' : 'password'} 
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button" 
+                className="show-password-btn"
+                onClick={() => setShowPassword(!showPassword)} 
+                aria-label={showPassword ? 'Hide password' : 'Show password'} 
+              >
+                {}
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+          <div className="form-group password-group"> {}
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <div className="password-input-wrapper"> {}
+              <input
+                id="confirmPassword" 
+                type={showConfirmPassword ? 'text' : 'password'} 
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button" 
+                className="show-password-btn"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'} 
+              >
+                {}
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+          <button type="submit" className="auth-button">Sign Up</button> {}
+        </form>
+        <p className="auth-link-text"> {}
+          Already have an account? <a href="/login">Log in</a>
+        </p>
+      </div>
     </div>
   );
 }

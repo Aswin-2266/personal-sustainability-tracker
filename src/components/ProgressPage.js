@@ -1,62 +1,158 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import { useAuth } from './AuthContext'; 
+
+import "./ProgressPage.css"; 
+
 
 const ProgressPage = () => {
-  const [data, setData] = useState([]);
-  const [timePeriod, setTimePeriod] = useState('monthly'); // default to 'today'
+  const { token, loading: authLoading } = useAuth(); 
+  const [data, setData] = useState([]); 
+  const [timePeriod, setTimePeriod] = useState('monthly'); 
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
 
-  // Fetch progress data based on the selected time period
-  const fetchProgress = async (period) => {
+  
+  const chartColors = {
+    commute: '#673AB7',     
+    food: '#00ACC1',        
+    electricity: '#FFCA28', 
+    water: '#9575CD',       
+    plastic: '#EF5350',     
+  };
+
+  
+  const fetchProgress = useCallback(async (period) => {
+    if (authLoading) {
+      return;
+    }
+    if (!token) {
+      setError('Authentication required to fetch progress data.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setData([]);
+
     try {
-      const token = localStorage.getItem('token'); // assuming token is stored here
       const response = await axios.get(`http://localhost:5000/api/user-progress/${period}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setData(response.data);
-    } catch (error) {
-      console.error('Failed to fetch user progress:', error);
+
+      
+      
+      const formattedData = response.data.map(entry => {
+        const dateObject = new Date(entry.created_at); 
+        let formattedDate;
+        if (isNaN(dateObject.getTime())) {
+          formattedDate = 'Invalid Date'; 
+          console.warn('Invalid date detected for entry (ProgressPage frontend fallback):', entry.created_at); 
+        } else {
+          formattedDate = dateObject.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        return {
+          ...entry, 
+          date: formattedDate,
+        };
+      });
+      
+      setData(formattedData);
+    } catch (err) {
+      console.error('Failed to fetch user progress:', err);
+      if (err.response) {
+        setError(err.response.data.error || 'Failed to load progress data.');
+      } else if (err.request) {
+        setError('Network error: No response from server.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [token, authLoading]);
 
   useEffect(() => {
-    fetchProgress(timePeriod); // fetch data when component mounts or timePeriod changes
-  }, [timePeriod]);
+    fetchProgress(timePeriod);
+  }, [timePeriod, fetchProgress]);
+
+  
+  const formatXAxisTick = useCallback((tick) => {
+    return tick;
+  }, []);
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Your Sustainability Progress</h2>
+    <div className="progress-page-container">
+      <div className="progress-header">
+        <h2>Your Sustainability Progress</h2>
 
-      {/* Dropdown to select time period */}
-      <div style={{ position: 'absolute', top: '1rem', right: '2rem' }}>
-        <select
-          value={timePeriod}
-          onChange={(e) => setTimePeriod(e.target.value)}
-          style={{ padding: '0.5rem', fontSize: '1rem' }}
-        >
-          <option value="today">Today</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
+        <div className="time-period-selector">
+          <label htmlFor="time-period-select" className="sr-only">Select Time Period</label>
+          <select
+            id="time-period-select"
+            value={timePeriod}
+            onChange={(e) => setTimePeriod(e.target.value)}
+            className="time-period-dropdown"
+          >
+            <option value="today">Today</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
       </div>
 
-      {/* LineChart displaying the progress data */}
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={data}>
-          <CartesianGrid stroke="#ccc" />
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="commute_distance" stroke="#8884d8" name="Commute (km)" />
-          <Line type="monotone" dataKey="food_weight" stroke="#82ca9d" name="Food (kg)" />
-          <Line type="monotone" dataKey="electricity_used" stroke="#ffc658" name="Electricity (kWh)" />
-          <Line type="monotone" dataKey="water_consumption" stroke="#00c49f" name="Water (L)" />
-          <Line type="monotone" dataKey="plastic_items_used" stroke="#ff8042" name="Plastic Items" />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="chart-area">
+        {loading ? (
+          <p className="loading-message">Loading progress data...</p>
+        ) : error ? (
+          <p className="error-message">{error}</p>
+        ) : data.length === 0 ? (
+          <p className="no-data-message">No sustainability data available for this period. Log activities to see your progress!</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={400}>
+            <LineChart
+              data={data}
+              margin={{
+                top: 20, right: 30, left: 80, bottom: 5, 
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={formatXAxisTick} 
+                stroke="var(--text-medium)" 
+                tickLine={false} 
+                axisLine={false}
+              />
+              <YAxis 
+                stroke="var(--text-medium)" 
+                tickLine={false} 
+                axisLine={false}
+                
+                label={{ value: 'Value (km/kg/kWh/L/items)', angle: -90, position: 'insideLeft', fill: 'var(--text-medium)' }}
+              />
+              <Tooltip 
+                contentStyle={{ backgroundColor: 'var(--card-bg)', border: `1px solid var(--border-light)`, borderRadius: 'var(--border-radius-sm)' }}
+                labelStyle={{ color: 'var(--primary-dark)', fontWeight: 'bold' }}
+                itemStyle={{ color: 'var(--text-dark)' }}
+              />
+              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              
+              {/* Individual lines for each sustainability metric */}
+              <Line type="monotone" dataKey="commute_distance" stroke={chartColors.commute} name="Commute (km)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="food_weight" stroke={chartColors.food} name="Food (kg)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="electricity_used" stroke={chartColors.electricity} name="Electricity (kWh)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="water_consumption" stroke={chartColors.water} name="Water (L)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="plastic_items_used" stroke={chartColors.plastic} name="Plastic Items" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
     </div>
   );
 };
