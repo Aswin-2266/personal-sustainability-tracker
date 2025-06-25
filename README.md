@@ -1,108 +1,147 @@
-Personal Sustainability Tracker 🌱📊
-Track Your Eco-Impact, Drive Change, and Connect with a Greener Community.
+# 🌱📊 Personal Sustainability Tracker
 
-✨ Project Overview
-The Personal Sustainability Tracker is a full-stack web application designed to empower individuals to effortlessly monitor and reduce their environmental footprint. By providing intuitive tools for logging daily activities and visualizing their impact, the app aims to foster greater awareness and motivate sustainable lifestyle choices. Join a growing community committed to a greener future!
+**Empower your eco-journey. Track your daily impact, gain insights, and connect with a community committed to a greener future.**
 
-🚀 Features at a Glance
-Secure Authentication: Seamless user registration and login experience with robust JWT-based authentication.
+---
 
-Activity Tracking: Log diverse daily habits including commute distance and type, food consumption (by weight/diet), electricity usage, water consumption, and plastic items used.
+## ✨ Project Overview
 
-Impact Analytics: Gain valuable insights with a built-in carbon footprint estimator, providing tangible data on your environmental impact.
+The **Personal Sustainability Tracker** is a robust full-stack web application designed to help individuals consciously monitor and reduce their environmental footprint.
 
-Interactive Progress Charts: Visualize your sustainability journey over time with dynamic weekly and monthly charts, displaying individual metrics (commute, food, energy, water, plastic) for detailed analysis.
+It transforms abstract environmental goals into actionable, measurable steps by offering intuitive tools to log daily habits and visualize ecological impact.  
+This app fosters environmental awareness and motivates sustainable lifestyle choices through personalized insights and community engagement.
 
-Community Leaderboard: Foster friendly competition and collective motivation by seeing how your efforts stack up against other users.
+---
 
-Email Notifications (Optional): Receive alerts for login and signup activities, powered by Nodemailer.
+## 🚀 Key Features
 
-⚙️ Getting Started
-Follow these steps to get your Personal Sustainability Tracker up and running locally.
+- 🔐 **Secure & Seamless Authentication**  
+  User registration and login via JWT-based token authentication.
 
-Prerequisites
-Before you begin, ensure you have the following installed:
+- 📒 **Comprehensive Activity Logging**  
+  Track daily habits:
+  - **Commute**: Distance & transport type (car, public transport, bike, walk)
+  - **Food**: Weight & dietary type (vegan, vegetarian, non-veg)
+  - **Resources**: Electricity (kWh) & water (litres)
+  - **Plastic**: Number of disposable plastic items used
 
-Node.js (LTS version recommended)
+- 📊 **Instant Impact Analytics**  
+  Real-time estimation of carbon footprint (kg CO₂e) based on logged activities.
 
-npm (comes with Node.js) or Yarn
+- 📈 **Interactive Progress Visualization**  
+  View trends over time (daily, weekly, monthly) for all tracked categories via dynamic line charts.
 
-PostgreSQL
+- 🏆 **Community Leaderboard**  
+  See how your eco-habits compare with other users — encouraging friendly competition.
 
-1. Clone the Repository
-git clone [https://github.com/Aswin-2266/personal-sustainability-tracker.git](https://github.com/Aswin-2266/personal-sustainability-tracker.git)
+- 📬 **Optional Email Notifications**  
+  Receive signup/login alerts via Nodemailer integration.
+
+---
+
+## ⚙️ Getting Started
+
+### ✅ Prerequisites
+
+Ensure the following tools are installed:
+
+- [Node.js (LTS)](https://nodejs.org/)
+- npm (comes with Node.js) or Yarn
+- PostgreSQL (active and running)
+
+---
+
+### 🛠 Setup Steps
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/Aswin-2266/personal-sustainability-tracker.git
 cd personal-sustainability-tracker
 
-2. Setup Environment Variables
-Create a .env file in the root directory of the project:
+#### 2. Configure Environment Variables
+Create a .env file:
 
 cp .env.template .env
+Then open .env and fill in your credentials:
+DB_USER=your_postgres_user
+DB_HOST=localhost
+DB_NAME=your_db_name
+DB_PASSWORD=your_password
+DB_PORT=5432
+JWT_SECRET=your_secure_jwt_secret
 
-Open the newly created .env file and fill in your actual credentials for the database and JWT secret.
-(Example contents for .env.template if you plan to include one in your repo: DB_USER=your_user\nDB_HOST=localhost\nDB_NAME=your_db\nDB_PASSWORD=your_password\nDB_PORT=5432\nJWT_SECRET=a_very_secret_key_for_jwt)
+# Optional for email:
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_app_password
 
-3. Install Dependencies
-Install both frontend and backend dependencies:
-
+#### 3. Install Dependencies
 npm install
 
-4. Database Setup
-Ensure your PostgreSQL server is running. The application will attempt to create the necessary tables on startup if they don't exist, based on your db/schema.sql (if present and used by server.js).
+#### 4. Database Initialization
+Ensure your PostgreSQL server is running.
+The backend will auto-create tables (users, sustainability_data, etc.) on startup if not present (see db/schema.sql if used).
 
-5. Run the Application
-Start both the frontend (React) and backend (Node.js/Express) simultaneously:
-
+#### 5. Run the Application
 npm start
+This uses concurrently to launch:
 
-This command uses concurrently to run react-scripts start and node server.js. Your application should now be accessible in your browser, typically at http://localhost:3000.
+React frontend at: http://localhost:3000
 
-🛠️ Tech Stack
-Frontend:
+Express backend (API) behind the scenes
 
-React (v19.1.0) - User Interface
+## 🧰 Tech Stack
+### Frontend
+React (v19.1.0) – Dynamic user interfaces
 
-React Router DOM (v7.6.0) - Client-side Routing
+React Router DOM (v7.6.0) – Client-side routing
 
-Recharts (v2.15.3) - Data Visualization
+Recharts (v2.15.3) – Charts and graphs
 
-Axios - HTTP Client
+Axios – API communication
 
-React Icons (v5.5.0) - UI Icons
+React Icons (v5.5.0) – Icon packs
 
-Custom CSS for styling
+Custom CSS – Consistent styling
 
-Backend:
+### Backend
+Node.js
 
-Node.js - Runtime Environment
+Express.js (v5.1.0)
 
-Express.js (v5.1.0) - Web Framework
+jsonwebtoken (v9.0.2) – JWT-based auth
 
-jsonwebtoken (v9.0.2) - JWT Authentication
+bcrypt (v5.1.1) – Secure password hashing
 
-bcrypt (v5.1.1) - Password Hashing
+cors
 
-cors - Cross-Origin Resource Sharing
+Nodemailer (v7.0.3) – Email delivery
 
-Nodemailer (v7.0.3) - Email Sending
+### Database
+PostgreSQL
 
-Database:
+pg (v8.15.6) – PostgreSQL client for Node.js
 
-PostgreSQL - Relational Database
+### Dev Tools
+dotenv – Env var management
 
-pg (v8.15.6) - PostgreSQL Client for Node.js
+concurrently – Run frontend + backend together
 
-Development Tools:
-
-dotenv - Environment Variable Management
-
-concurrently - Run multiple commands concurrently
-
-👤 Author
+## 👤 Author
 Aswin S.
-Feel free to connect with me on LinkedIn or reach out via Email.
+🔗 LinkedIn Profile
+📧 aswin.email@example.com
 
+(Replace the above with your real LinkedIn and email.)
+
+## 
 🤝 Contributing
-Contributions are welcome! If you have suggestions, bug reports, or want to contribute to the codebase, please open an issue or submit a pull request.
+We welcome all contributions!
+You can:
 
-📄 License
-This project is licensed under the MIT License - see the LICENSE file for details. (Note: You should create a LICENSE file in your repository if you don't have one)
+Open issues for bugs/features
+
+Fork this repo and submit pull requests
+
+Let’s build a greener future together 🌍
