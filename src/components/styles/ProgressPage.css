@@ -1,5 +1,3 @@
-
-
 :root {
     --primary: #673AB7;          
     --primary-light: #9575CD;    
@@ -24,14 +22,18 @@
 }
 
 .progress-page-container {
-    max-width: 1200px;
-    margin: 2rem auto; 
-    padding: 2rem;
+    width: 100%;
+    padding: 2rem 4rem; /* Adjusted padding */
+    margin: 0;
+    box-sizing: border-box;
+    
     background-color: var(--light-bg);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-medium);
+    border-radius: 0;
+    box-shadow: none;
     font-family: 'Inter', sans-serif;
     color: var(--text-dark);
+    min-height: 100vh;
+    position: relative; /* FIX: Added this line to correctly position absolute children */
 }
 
 .progress-header {
@@ -50,6 +52,48 @@
     margin: 0;
     line-height: 1.2; 
 }
+
+/* NEW: Class for fixed home button positioning */
+.home-button-fixed-top-left {
+    position: absolute;
+    top: 2rem;   /* Distance from the top edge */
+    left: 2rem;  /* Distance from the left edge */
+    z-index: 100; /* Ensure it's above other content */
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Space between home button and dropdown */
+}
+
+.home-button {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--primary-light);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--primary); /* Use primary color for the button */
+    color: white; /* White text */
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none; /* Remove underline for links */
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Space between icon and text if you add an icon */
+}
+
+.home-button:hover {
+    background-color: var(--primary-dark); /* Darker on hover */
+    border-color: var(--primary-dark);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.home-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--primary), 0.2);
+}
+
 
 .time-period-selector {
     position: relative; 
@@ -94,6 +138,8 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    width: 100%; 
+    box-sizing: border-box;
 }
 
 
@@ -112,13 +158,36 @@
 
 .recharts-wrapper {
     overflow: visible !important; 
+    width: 100% !important;
+    height: auto !important; 
 }
 
 
 @media (max-width: 768px) {
     .progress-page-container {
         padding: 1rem;
-        margin: 1rem auto;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    /* Adjust header actions for mobile */
+    .header-actions {
+        width: 100%;
+        justify-content: space-between; /* Space out home button and dropdown */
+        flex-wrap: wrap; /* Allow wrapping if needed */
+    }
+
+    /* Adjust home button position for smaller screens */
+    .home-button-fixed-top-left {
+        top: 1rem;
+        left: 1rem;
+        padding: 0.5rem 1rem; /* Smaller padding for mobile button */
+    }
+
+    .home-button {
+        flex-grow: 1; /* Allow button to grow on mobile */
+        text-align: center;
     }
 
     .progress-header {
@@ -147,5 +216,6 @@
     
     .chart-area {
         padding: 1rem;
+        width: 100%;
     }
 }

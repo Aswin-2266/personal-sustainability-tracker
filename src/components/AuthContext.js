@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import './AuthContext.css'; 
+import './styles/AuthContext.css'; 
 
 const AuthContext = createContext();
 

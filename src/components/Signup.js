@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 
-import './AuthContext.css'; 
+import './styles/AuthContext.css'; 
 
 function Signup() {
   const [formData, setFormData] = useState({

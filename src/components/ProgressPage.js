@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { useAuth } from './AuthContext'; 
 
-import "./ProgressPage.css"; 
+import "./styles/ProgressPage.css"; 
 
 
 const ProgressPage = () => {
@@ -15,16 +15,21 @@ const ProgressPage = () => {
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
 
-  
-  const chartColors = {
-    commute: '#673AB7',     
-    food: '#00ACC1',        
-    electricity: '#FFCA28', 
-    water: '#9575CD',       
-    plastic: '#EF5350',     
+  // This function handles the navigation when the Home button is clicked.
+  // It redirects the browser to the '/dashboard' route.
+  // If your main dashboard/home page is at a different URL (e.g., '/'), adjust this path accordingly.
+  const goToDashboard = () => {
+    window.location.href = '/dashboard'; 
   };
 
-  
+  const chartColors = {
+    commute: '#673AB7',     
+    food: '#00ACC1',        
+    electricity: '#FFCA28', 
+    water: '#9575CD',       
+    plastic: '#EF5350',     
+  };
+
   const fetchProgress = useCallback(async (period) => {
     if (authLoading) {
       return;
@@ -44,8 +49,6 @@ const ProgressPage = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      
-      
       const formattedData = response.data.map(entry => {
         const dateObject = new Date(entry.created_at); 
         let formattedDate;
@@ -81,7 +84,6 @@ const ProgressPage = () => {
     fetchProgress(timePeriod);
   }, [timePeriod, fetchProgress]);
 
-  
   const formatXAxisTick = useCallback((tick) => {
     return tick;
   }, []);
@@ -90,19 +92,24 @@ const ProgressPage = () => {
     <div className="progress-page-container">
       <div className="progress-header">
         <h2>Your Sustainability Progress</h2>
+        <div className="header-actions">
+          <button onClick={goToDashboard} className="home-button">
+            Home
+          </button>
 
-        <div className="time-period-selector">
-          <label htmlFor="time-period-select" className="sr-only">Select Time Period</label>
-          <select
-            id="time-period-select"
-            value={timePeriod}
-            onChange={(e) => setTimePeriod(e.target.value)}
-            className="time-period-dropdown"
-          >
-            <option value="today">Today</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
+          <div className="time-period-selector">
+            <label htmlFor="time-period-select" className="sr-only">Select Time Period</label>
+            <select
+              id="time-period-select"
+              value={timePeriod}
+              onChange={(e) => setTimePeriod(e.target.value)}
+              className="time-period-dropdown"
+            >
+              <option value="today">Today</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -133,7 +140,6 @@ const ProgressPage = () => {
                 stroke="var(--text-medium)" 
                 tickLine={false} 
                 axisLine={false}
-                
                 label={{ value: 'Value (km/kg/kWh/L/items)', angle: -90, position: 'insideLeft', fill: 'var(--text-medium)' }}
               />
               <Tooltip 
@@ -143,7 +149,6 @@ const ProgressPage = () => {
               />
               <Legend wrapperStyle={{ paddingTop: '20px' }} />
               
-              {/* Individual lines for each sustainability metric */}
               <Line type="monotone" dataKey="commute_distance" stroke={chartColors.commute} name="Commute (km)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
               <Line type="monotone" dataKey="food_weight" stroke={chartColors.food} name="Food (kg)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
               <Line type="monotone" dataKey="electricity_used" stroke={chartColors.electricity} name="Electricity (kWh)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
@@ -157,4 +162,4 @@ const ProgressPage = () => {
   );
 };
 
-export default ProgressPage;
+export default ProgressPage; // Corrected export name

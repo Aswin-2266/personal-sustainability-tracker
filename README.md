@@ -58,6 +58,7 @@ Ensure the following tools are installed:
 git clone https://github.com/Aswin-2266/personal-sustainability-tracker.git
 cd personal-sustainability-tracker
 
+
 #### 2. Configure Environment Variables
 Create a .env file:
 
@@ -135,8 +136,7 @@ Aswin S.
 
 (Replace the above with your real LinkedIn and email.)
 
-## 
-🤝 Contributing
+## 🤝 Contributing
 We welcome all contributions!
 You can:
 

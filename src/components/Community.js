@@ -3,7 +3,7 @@ import { FaTrophy } from 'react-icons/fa';
 import axios from 'axios'; 
 import { useAuth } from './AuthContext'; 
 
-import './Community.css';
+import './styles/Community.css';
 
 function Community() {
     const { token, loading: authLoading } = useAuth(); 

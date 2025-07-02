@@ -1,6 +1,6 @@
+/* AuthContext.css */
 
-
-
+/* Variables (if you have them, otherwise define colors directly) */
 :root {
     --primary: #673AB7;          
     --primary-light: #9575CD;    
@@ -25,65 +25,56 @@
     --font-inter: 'Inter', sans-serif;
 }
 
-
+/* --- Overall Page Layout --- */
 .auth-page-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh; 
-    gap: 2rem; 
+    min-height: 100vh; /* Full viewport height */
+    gap: 2rem; /* Spacing between app title and form card */
     
-    
+    /* --- BACKGROUND IMAGE STYLES --- */
+    /* Assuming your image is named 'sustainability-bg.jpg' and is in 'src/components/assets/' */
+    /* Adjust 'sustainability-bg.jpg' to your actual image file name */
+    background-image: url('../assets/sustainability-bg.jpg'); 
+    background-size: cover; /* Cover the entire area */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    background-attachment: fixed; /* Keep background fixed when scrolling (if content overflows) */
+    /* --- END BACKGROUND IMAGE STYLES --- */
 
-/* Current gradient */
-    /* background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent-light) 100%); */
-
-    /* --- Choose one of these new gradient options below --- */
-
-    /* Option 1: Warmer, Earthy Gradient */
-    /* background: linear-gradient(135deg, #A8E063 0%, #56AB2F 100%); */ /* Fresh Green to Forest Green */
-
-    /* Option 2: Softer, Professional Blue-Purple Gradient */
-    background: linear-gradient(135deg, #FFC0CB 0%, #80CBC4 100%); /* Light Teal to Medium Teal */
-
-    /* Option 3: Modern, Energetic Pink-Orange Gradient */
-    /* background: linear-gradient(135deg, #B2DFDB 0%, #FF8C00 100%); */ /* Light Pink to Dark Orange */
-
-    /* Option 4: Darker, Sophisticated Blue Gradient */
-    /* background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%); */ /* Deep Blue to Violet */
-
-    /* Option 5: Your current primary and accent colors with a different angle */
-    /* background: linear-gradient(45deg, var(--primary) 0%, var(--accent) 100%); */
-
+    /* Optional: Add a subtle overlay for better form readability if needed */
+    /* background-color: rgba(255, 255, 255, 0.1); */ /* Light white overlay */
+    /* background-blend-mode: overlay; */
 
     padding: 1.5rem;
     font-family: var(--font-inter);
     color: var(--text-dark);
-    box-sizing: border-box;
+    box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
 .app-title {
     font-size: 2.5rem;
-    font-weight: 800; 
+    font-weight: 800; /* Extra bold */
     color: var(--primary-dark);
     text-align: center;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
     letter-spacing: 1px;
-    z-index: 10; 
+    z-index: 10; /* Ensure title is above any background elements if needed */
 }
 
-
+/* --- Form Card Styling --- */
 .auth-form-card {
     background-color: var(--card-bg);
     padding: 2.5rem;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-medium);
     width: 100%;
-    max-width: 450px; 
+    max-width: 450px; /* Slightly wider for better forms */
     text-align: center;
-    border: 1px solid var(--border-light); 
-    z-index: 1; 
+    border: 1px solid var(--border-light); /* Subtle border */
+    z-index: 1; /* Ensure form is above background */
 }
 
 .auth-form-card h2 {
@@ -93,7 +84,7 @@
     margin-bottom: 2rem;
 }
 
-
+/* --- Form Group & Inputs --- */
 .form-group {
     margin-bottom: 1.5rem;
     text-align: left;
@@ -109,46 +100,46 @@
 
 .form-group input {
     width: 100%;
-    padding: 0.9rem 1.2rem; 
+    padding: 0.9rem 1.2rem; /* Increased padding */
     border: 1px solid var(--border-light);
     border-radius: var(--border-radius-sm);
     font-size: 1rem;
     color: var(--text-dark);
-    background-color: var(--light-bg); 
+    background-color: var(--light-bg); /* Slight background for inputs */
     transition: all 0.2s ease-in-out;
-    box-sizing: border-box; 
+    box-sizing: border-box; /* Crucial for input width calculation with padding */
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--primary); 
-    box-shadow: 0 0 0 3px rgba(var(--primary), 0.15); 
-    background-color: var(--card-bg); 
+    border-color: var(--primary); /* Primary color on focus */
+    box-shadow: 0 0 0 3px rgba(var(--primary), 0.15); /* Soft focus ring */
+    background-color: var(--card-bg); /* White background on focus */
 }
 
-
+/* --- Password Toggle Specific Styles --- */
 .password-input-wrapper {
     position: relative;
-    display: flex; 
+    display: flex; /* Align input and button */
     align-items: center;
 }
 
 .password-input-wrapper input {
-    flex-grow: 1; 
-    padding-right: 3rem; 
+    flex-grow: 1; /* Make input fill space */
+    padding-right: 3rem; /* Make space for the icon button */
 }
 
 .show-password-btn {
     background: none;
     border: none;
     position: absolute;
-    right: 0.75rem; 
+    right: 0.75rem; /* Position from the right edge of the input wrapper */
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: var(--text-medium); 
-    font-size: 1.1rem; 
-    padding: 0.3rem; 
+    color: var(--text-medium); /* Default icon color */
+    font-size: 1.1rem; /* Slightly larger icon */
+    padding: 0.3rem; /* Clickable area */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -156,25 +147,25 @@
 }
 
 .show-password-btn:hover {
-    color: var(--primary-dark); 
+    color: var(--primary-dark); /* Darker purple on hover */
 }
 
 .show-password-btn:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(var(--primary), 0.3); 
-    border-radius: 50%; 
+    box-shadow: 0 0 0 2px rgba(var(--primary), 0.3); /* Subtle focus ring */
+    border-radius: 50%; /* Rounded focus ring for button */
 }
 
-
+/* --- Buttons --- */
 .auth-button {
     width: 100%;
-    padding: 1rem 1.5rem; 
-    background: linear-gradient(45deg, var(--primary) 0%, var(--accent) 100%); 
+    padding: 1rem 1.5rem; /* Larger padding for better touch targets */
+    background: linear-gradient(45deg, var(--primary) 0%, var(--accent) 100%); /* Gradient button */
     color: white;
     border: none;
     border-radius: var(--border-radius-md);
     font-size: 1.15rem;
-    font-weight: 700; 
+    font-weight: 700; /* Bolder text */
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 1.5rem;
@@ -183,30 +174,30 @@
 }
 
 .auth-button:hover {
-    background: linear-gradient(45deg, var(--primary-dark) 0%, var(--accent-light) 100%); 
-    transform: translateY(-3px); 
+    background: linear-gradient(45deg, var(--primary-dark) 0%, var(--accent-light) 100%); /* Darker gradient on hover */
+    transform: translateY(-3px); /* Lift effect */
     box-shadow: var(--shadow-medium);
 }
 
 .auth-button:active {
-    transform: translateY(0); 
+    transform: translateY(0); /* Press effect */
     box-shadow: none;
 }
 
-
+/* --- Messages --- */
 .error-message {
-    background-color: #ffebee; 
+    background-color: #ffebee; /* Light red */
     color: var(--danger);
     padding: 0.75rem;
     border-radius: var(--border-radius-sm);
-    margin-bottom: 1.5rem; 
+    margin-bottom: 1.5rem; /* More space */
     border: 1px solid var(--danger);
     font-size: 0.95rem;
     text-align: left;
 }
 
 .success-message {
-    background-color: #e8f5e9; 
+    background-color: #e8f5e9; /* Light green */
     color: var(--success);
     padding: 0.75rem;
     border-radius: var(--border-radius-sm);
@@ -216,15 +207,15 @@
     text-align: left;
 }
 
-
+/* --- Links --- */
 .auth-link-text {
-    margin-top: 2rem; 
+    margin-top: 2rem; /* More space */
     color: var(--text-medium);
     font-size: 0.95rem;
 }
 
 .auth-link-text a {
-    color: var(--primary); 
+    color: var(--primary); /* Primary color for links */
     text-decoration: none;
     font-weight: 600;
 }
@@ -234,7 +225,7 @@
     color: var(--primary-dark);
 }
 
-
+/* --- Responsive Adjustments --- */
 @media (max-width: 600px) {
     .auth-page-container {
         padding: 1rem;

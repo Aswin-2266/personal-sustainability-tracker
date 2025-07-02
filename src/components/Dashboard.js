@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import WeeklyProgressChart from './WeeklyProgressChart';
 
-import './Dashboard.css';
+import './styles/Dashboard.css';
 
 function Dashboard() {
     const { user, logout, token, loading: authLoading } = useAuth();

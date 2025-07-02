@@ -8,7 +8,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 const fs = require('fs');
 const path = require('path');
-const { sendLoginEmail } = require('./src/components/Mailer');
+// const { sendLoginEmail } = require('./src/components/Mailer');
+const { sendLoginEmail, sendWelcomeEmail } = require('./src/components/Mailer');
 
 
 const pool = new Pool({
@@ -70,33 +71,31 @@ app.post('/api/register', async (req, res) => {
     const { username, email, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const result = await pool.query(
+    const userResult = await pool.query(
       'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email',
       [username, email, hashedPassword]
     );
 
-    const user = result.rows[0];
+    const user = userResult.rows[0];
 
-    
     await pool.query(
       'INSERT INTO leaderboard (user_id, username, points) VALUES ($1, $2, $3)',
       [user.id, user.username, 0]
     );
 
+    await sendWelcomeEmail(user.email, user.username);
+    console.log(`Welcome email triggered for new user: ${user.username}`);
     
-    
-    
-    res.status(201).json(user); 
+    res.status(201).json({ message: 'User registered successfully!', user: { id: user.id, username: user.username, email: user.email } });
   } catch (err) {
     console.error('Registration error:', err);
     
-    if (err.code === '23505') { 
-        return res.status(409).json({ error: 'Email or username already exists.' });
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'Email or username already exists.' });
     }
     res.status(500).json({ error: 'Registration failed' });
   }
 });
-
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
@@ -113,9 +112,9 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    
-    
-
+    const loginTime = new Date();
+    await sendLoginEmail(user.email, user.username, loginTime);
+    console.log(`Login email triggered for user: ${user.username}`);
     
     const token = jwt.sign(
       { id: user.id, email: user.email, username: user.username }, 
@@ -124,7 +123,6 @@ app.post('/api/login', async (req, res) => {
     );
     
     console.log('User logged in:', user.username); 
-
     
     res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
   } catch (err) {

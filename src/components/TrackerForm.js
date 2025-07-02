@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
-import './TrackerForm.css';
+import './styles/TrackerForm.css';
 
 function TrackerForm() {
   const { token } = useAuth();

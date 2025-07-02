@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext'; 
 
-import './InsightsPage.css'; 
+import './styles/InsightsPage.css'; 
 
 const InsightsPage = () => {
   const { token, loading: authLoading } = useAuth(); 
