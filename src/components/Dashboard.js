@@ -6,50 +6,40 @@ import WeeklyProgressChart from './WeeklyProgressChart';
 
 import './styles/Dashboard.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Define API Base URL
+
 function Dashboard() {
     const { user, logout, token, loading: authLoading } = useAuth();
 
     const [carbonSaved, setCarbonSaved] = useState(null);
     const [waterSaved, setWaterSaved] = useState(null);
     const [plasticReduced, setPlasticReduced] = useState(null);
-    const [recentActivities, setRecentActivities] = useState([]);
+    const [recentActivities, setRecentActivities] = useState([]); 
     
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
 
-    
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(prev => !prev);
     };
 
-    
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false);
     };
 
-
     const formatTimeAgo = useCallback((timestamp) => {
-        const date = new Date(timestamp); 
-        const now = new Date(); 
-
-        
+        const date = new Date(timestamp);
+        const now = new Date();
         const diffInMilliseconds = now.getTime() - date.getTime();
         const diffInSeconds = Math.round(diffInMilliseconds / 1000);
 
-        
-        
-        
         if (diffInSeconds < 0) {
-            
             console.warn("Activity timestamp is in the future:", timestamp, "Current time:", now);
-            
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
-        
 
-        
         const minutes = Math.round(diffInSeconds / 60);
         const hours = Math.round(minutes / 60);
         const days = Math.round(hours / 24);
@@ -63,17 +53,19 @@ function Dashboard() {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); 
     }, []);
 
-    
     const processSustainabilityData = useCallback((dataArray) => {
         const activities = [];
-        const latestEntries = dataArray.slice(0, 7); 
+        const sortedData = [...dataArray].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+        const latestEntries = sortedData.slice(0, 7); 
 
         latestEntries.forEach(entry => {
             const timeAgo = formatTimeAgo(entry.created_at);
 
+            let activityIdCounter = 0; 
             if (entry.commute_distance > 0) {
                 activities.push({
-                    id: `${entry.id}-commute-${Math.random()}`, 
+                    id: `${entry.id}-commute-${activityIdCounter++}`, 
                     icon: 'fas fa-route', 
                     text: `Logged ${entry.commute_distance}km commute via ${entry.commute_type || 'unknown method'}`,
                     time: timeAgo
@@ -81,7 +73,7 @@ function Dashboard() {
             }
             if (entry.food_weight > 0) {
                 activities.push({
-                    id: `${entry.id}-food-${Math.random()}`,
+                    id: `${entry.id}-food-${activityIdCounter++}`,
                     icon: 'fas fa-utensils',
                     text: `Logged ${entry.food_weight}kg food consumption (${entry.diet_type || 'unspecified diet'})`,
                     time: timeAgo
@@ -89,7 +81,7 @@ function Dashboard() {
             }
             if (entry.electricity_used > 0) {
                 activities.push({
-                    id: `${entry.id}-electricity-${Math.random()}`,
+                    id: `${entry.id}-electricity-${activityIdCounter++}`,
                     icon: 'fas fa-lightbulb',
                     text: `Logged ${entry.electricity_used} kWh electricity usage`,
                     time: timeAgo
@@ -97,7 +89,7 @@ function Dashboard() {
             }
             if (entry.water_consumption > 0) {
                 activities.push({
-                    id: `${entry.id}-water-${Math.random()}`,
+                    id: `${entry.id}-water-${activityIdCounter++}`,
                     icon: 'fas fa-tint',
                     text: `Logged ${entry.water_consumption} L water consumption`,
                     time: timeAgo
@@ -105,24 +97,30 @@ function Dashboard() {
             }
             if (entry.plastic_items_used > 0) {
                 activities.push({
-                    id: `${entry.id}-plastic-${Math.random()}`,
+                    id: `${entry.id}-plastic-${activityIdCounter++}`,
                     icon: 'fas fa-recycle',
                     text: `Logged ${entry.plastic_items_used} plastic items used`,
                     time: timeAgo
                 });
             }
-            
         });
 
-        
         activities.sort((a, b) => {
-            const originalA = dataArray.find(d => a.id.startsWith(`${d.id}-`))?.created_at;
-            const originalB = dataArray.find(d => b.id.startsWith(`${d.id}-`))?.created_at;
-            return new Date(originalB) - new Date(originalA);
+            const originalEntryA = sortedData.find(d => a.id.startsWith(`${d.id}-`));
+            const originalEntryB = sortedData.find(d => b.id.startsWith(`${b.id}-`));
+            
+            const timeA = originalEntryA ? new Date(originalEntryA.created_at).getTime() : 0;
+            const timeB = originalEntryB ? new Date(originalEntryB.created_at).getTime() : 0;
+
+            return timeB - timeA; 
         });
         
         return activities.slice(0, 5); 
     }, [formatTimeAgo]);
+
+    const getUTCDateString = (date) => {
+        return date.toISOString().slice(0, 10);
+    };
 
     useEffect(() => {
         const fetchSustainabilityData = async () => {
@@ -139,45 +137,60 @@ function Dashboard() {
             setError(null);
 
             try {
-                const response = await axios.get('http://localhost:5000/api/sustainability', {
+                const response = await axios.get(`${API_BASE_URL}/api/sustainability`, { // Updated API call
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                
-                if (response.data.length >= 2) {
-                    const [today, yesterday] = response.data.slice(0, 2);
-                    const calculateCarbon = (data) => {
-                        const commute = (data.commute_distance || 0) * 0.192;
-                        const food = (data.food_weight || 0) * 27;
-                        const electricity = (data.electricity_used || 0) * 0.4;
-                        const water = (data.water_consumption || 0) * 0.00035;
-                        const plastic = (data.plastic_items_used || 0) * 0.3;
-                        return commute + food + electricity + water + plastic;
-                    };
+                const allSustainabilityData = response.data;
 
-                    const todayCarbon = calculateCarbon(today);
-                    const yesterdayCarbon = calculateCarbon(yesterday);
-                    const savedCarbon = yesterdayCarbon - todayCarbon;
-                    setCarbonSaved(savedCarbon.toFixed(2));
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1); 
 
-                    const savedWater = yesterday.water_consumption - today.water_consumption;
-                    setWaterSaved(savedWater.toFixed(2));
+                const todayUtcString = getUTCDateString(today);
+                const yesterdayUtcString = getUTCDateString(yesterday);
 
-                    const savedPlastic = yesterday.plastic_items_used - today.plastic_items_used;
-                    setPlasticReduced(savedPlastic);
-                } else {
-                    setCarbonSaved(0);
-                    setWaterSaved(0);
-                    setPlasticReduced(0);
-                    if (response.data.length === 1) {
-                        setError("Only one day of data available. Log more activities for comparative insights!");
-                    } else {
-                        setError("No sustainability data recorded yet. Log your activities!");
+                let todayAggregated = { carbon: 0, water: 0, plastic: 0 };
+                let yesterdayAggregated = { carbon: 0, water: 0, plastic: 0 };
+
+                allSustainabilityData.forEach(entry => {
+                    const entryDate = new Date(entry.created_at);
+                    const entryUtcString = getUTCDateString(entryDate);
+
+                    const carbonContribution = 
+                        (entry.commute_distance || 0) * 0.192 +
+                        (entry.food_weight || 0) * 27 +
+                        (entry.electricity_used || 0) * 0.4 +
+                        (entry.water_consumption || 0) * 0.00035 +
+                        (entry.plastic_items_used || 0) * 0.3;
+                    
+                    if (entryUtcString === todayUtcString) {
+                        todayAggregated.carbon += carbonContribution;
+                        todayAggregated.water += (entry.water_consumption || 0);
+                        todayAggregated.plastic += (entry.plastic_items_used || 0);
+                    } else if (entryUtcString === yesterdayUtcString) {
+                        yesterdayAggregated.carbon += carbonContribution;
+                        yesterdayAggregated.water += (entry.water_consumption || 0);
+                        yesterdayAggregated.plastic += (entry.plastic_items_used || 0);
                     }
+                });
+
+                const savedCarbon = yesterdayAggregated.carbon - todayAggregated.carbon;
+                setCarbonSaved(savedCarbon.toFixed(2));
+
+                const savedWater = yesterdayAggregated.water - todayAggregated.water;
+                setWaterSaved(savedWater.toFixed(2));
+
+                const savedPlastic = yesterdayAggregated.plastic - todayAggregated.plastic;
+                setPlasticReduced(savedPlastic);
+
+                if (allSustainabilityData.length === 0) {
+                    setError("No sustainability data recorded yet. Log your activities!");
+                } else if (yesterdayAggregated.carbon === 0 && todayAggregated.carbon === 0) {
+                    setError("Not enough data for meaningful comparison (no activities today or yesterday). Log more!");
                 }
                 
-                
-                setRecentActivities(processSustainabilityData(response.data));
+                setRecentActivities(processSustainabilityData(allSustainabilityData));
 
             } catch (err) {
                 console.error('Error fetching sustainability data:', err);
@@ -191,30 +204,30 @@ function Dashboard() {
                 setCarbonSaved(null);
                 setWaterSaved(null);
                 setPlasticReduced(null);
-                setRecentActivities([]);
+                setRecentActivities([]); 
             } finally {
                 setLoading(false);
             }
         };
 
         fetchSustainabilityData();
-    }, [token, authLoading, processSustainabilityData]);
+    }, [token, authLoading, processSustainabilityData]); 
 
     const renderStatValue = (value, unit) => {
         if (loading) return 'Loading...';
-        if (error) return 'N/A';
-        if (value === null) return 'N/A';
+        if (error) return 'N/A'; 
+        if (value === null) return 'N/A'; 
         return `${Math.abs(value)}${unit}`;
     };
 
     const renderStatChange = (value, type) => {
-        if (loading || error || value === null) return '';
+        if (loading || error || value === null) return ''; 
 
         let message = '';
         let iconClass = '';
         let statusClass = '';
 
-        if (value > 0) {
+        if (value > 0) { 
             message = `Saved from yesterday`;
             statusClass = 'positive';
             iconClass = 'fas fa-arrow-up';
@@ -248,14 +261,12 @@ function Dashboard() {
                 </button>
             </header>
             
-            {/* Hamburger Icon for Mobile */}
             <div className="mobile-menu-toggle">
                 <button className="hamburger-btn" onClick={toggleMobileMenu}>
                     <i className={isMobileMenuOpen ? 'fas fa-times' : 'fas fa-bars'}></i>
                 </button>
             </div>
 
-            {/* Navbar (desktop) and Mobile Menu (mobile) */}
             <nav className={`navbar ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
                 <ul className="navbar-links">
                     <li>
@@ -322,7 +333,7 @@ function Dashboard() {
                     <div className="activity-list">
                         {loading ? (
                             <p className="loading-message">Loading recent activities...</p>
-                        ) : error ? (
+                        ) : error && recentActivities.length === 0 ? ( 
                             <p className="error-message">Could not load activities: {error}</p>
                         ) : recentActivities.length > 0 ? (
                             recentActivities.map((activity) => (

@@ -3,8 +3,9 @@ import { useAuth } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
-
 import './styles/AuthContext.css'; 
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Define API Base URL
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -13,10 +14,9 @@ function Login() {
   });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false); 
-  const { login } = useAuth();
+  const { login } = useAuth(); // AuthContext's login function already uses API_BASE_URL after AuthContext.js update
   const navigate = useNavigate();
 
-  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -24,28 +24,27 @@ function Login() {
     });
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault(); 
     setError(''); 
     
     try {
+      // The login function in AuthContext.js handles the API call,
+      // and it's being updated to use API_BASE_URL.
       await login(formData.email, formData.password); 
       navigate('/dashboard'); 
     } catch (err) {
-      
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
     }
   };
 
   return (
-    <div className="auth-page-container"> {/* Main container for auth pages, styled by Auth.css */}
-      <h1 className="app-title"> {/* App title, styled by Auth.css */}
+    <div className="auth-page-container"> 
+      <h1 className="app-title"> 
         PERSONAL SUSTAINABILITY TRACKER
       </h1>
-      <div className="auth-form-card"> {/* Card for the login form, styled by Auth.css */}
+      <div className="auth-form-card"> 
         <h2>Log In</h2>
-        {/* Display error message if present */}
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -59,9 +58,9 @@ function Login() {
               required
             />
           </div>
-          <div className="form-group password-group"> {/* Group for password input and toggle */}
+          <div className="form-group password-group"> 
             <label htmlFor="password">Password</label>
-            <div className="password-input-wrapper"> {/* Wrapper for input and eye icon */}
+            <div className="password-input-wrapper"> 
               <input
                 id="password" 
                 type={showPassword ? 'text' : 'password'} 
@@ -76,14 +75,13 @@ function Login() {
                 onClick={() => setShowPassword(!showPassword)} 
                 aria-label={showPassword ? 'Hide password' : 'Show password'} 
               >
-                {/* Dynamically render eye icon based on showPassword state */}
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
           </div>
-          <button type="submit" className="auth-button">Log In</button> {/* Styled by Auth.css */}
+          <button type="submit" className="auth-button">Log In</button> 
         </form>
-        <p className="auth-link-text"> {/* Styled by Auth.css */}
+        <p className="auth-link-text"> 
           Don't have an account? <a href="/signup">Sign up</a>
         </p>
       </div>

@@ -1,14 +1,20 @@
-// Leaderboard.js
 import React, { useEffect, useState } from 'react';
-// import './Leaderboard.css';
+// import './Leaderboard.css'; // Assuming this CSS is handled globally or not strictly needed here
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Define API Base URL
 
 function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
 
   useEffect(() => {
     // Fetch leaderboard data from the backend API
-    fetch('/api/community/leaderboard')
-      .then(res => res.json())
+    fetch(`${API_BASE_URL}/api/community/leaderboard`) // Updated API call
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => setLeaderboard(data))
       .catch(err => console.error('Error fetching leaderboard data:', err));
   }, []);

@@ -4,6 +4,8 @@ import './styles/AuthContext.css';
 
 const AuthContext = createContext();
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Define API Base URL
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -13,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     const verifyToken = async () => {
       try {
         if (token) {
-          const response = await axios.get('http://localhost:5000/api/verify', {
+          const response = await axios.get(`${API_BASE_URL}/api/verify`, { // Updated API call
             headers: { Authorization: `Bearer ${token}` }
           });
           setUser(response.data.user);
@@ -29,7 +31,7 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    const response = await axios.post('http://localhost:5000/api/login', { email, password });
+    const response = await axios.post(`${API_BASE_URL}/api/login`, { email, password }); // Updated API call
     localStorage.setItem('token', response.data.token);
     setToken(response.data.token);
     setUser(response.data.user);
@@ -37,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (username, email, password) => {
-  const response = await fetch('http://localhost:5000/api/register', {
+  const response = await fetch(`${API_BASE_URL}/api/register`, { // Updated API call
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -51,10 +53,8 @@ export const AuthProvider = ({ children }) => {
   }
 
   const data = await response.json();
-  // Optionally save token, login user, etc.
   return data;
 };
-
 
   const logout = () => {
     localStorage.removeItem('token');

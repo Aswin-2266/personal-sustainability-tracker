@@ -5,6 +5,7 @@ import {
 import axios from 'axios';
 import { useAuth } from './AuthContext'; 
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Define API Base URL
 
 function WeeklyProgressChart() {
   const { token, loading: authLoading } = useAuth(); 
@@ -12,7 +13,6 @@ function WeeklyProgressChart() {
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
 
-  
   const chartColors = {
     commute: '#673AB7',     
     food: '#00ACC1',        
@@ -21,7 +21,6 @@ function WeeklyProgressChart() {
     plastic: '#EF5350',     
   };
 
-  
   const fetchProgress = useCallback(async () => {
     if (authLoading) {
       return;
@@ -37,19 +36,15 @@ function WeeklyProgressChart() {
     setData([]); 
 
     try {
-      
-      const response = await axios.get(`http://localhost:5000/api/user-progress/weekly`, {
+      const response = await axios.get(`${API_BASE_URL}/api/user-progress/weekly`, { // Updated API call
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      
-      
       const processedData = response.data.map(entry => {
         const dateObject = new Date(entry.created_at); 
 
         let formattedDate;
         if (isNaN(dateObject.getTime())) {
-          
           formattedDate = 'Invalid Date'; 
           console.warn('Invalid date detected for entry (WeeklyProgressChart frontend fallback):', entry.created_at); 
         } else {
@@ -77,12 +72,10 @@ function WeeklyProgressChart() {
     }
   }, [token, authLoading]); 
 
-  
   useEffect(() => {
     fetchProgress();
   }, [fetchProgress]);
 
-  
   const formatXAxisTick = useCallback((tick) => {
     return tick; 
   }, []);
@@ -121,11 +114,9 @@ function WeeklyProgressChart() {
               contentStyle={{ backgroundColor: 'var(--card-bg)', border: `1px solid var(--border-light)`, borderRadius: 'var(--border-radius-sm)' }}
               labelStyle={{ color: 'var(--primary-dark)', fontWeight: 'bold' }}
               itemStyle={{ color: 'var(--text-dark)' }}
-              
             />
             <Legend wrapperStyle={{ paddingTop: '10px' }} />
             
-            {/* Individual lines for each sustainability metric */}
             <Line type="monotone" dataKey="commute_distance" stroke={chartColors.commute} name="Commute (km)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
             <Line type="monotone" dataKey="food_weight" stroke={chartColors.food} name="Food (kg)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />
             <Line type="monotone" dataKey="electricity_used" stroke={chartColors.electricity} name="Electricity (kWh)" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }} />

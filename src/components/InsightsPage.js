@@ -4,6 +4,8 @@ import { useAuth } from './AuthContext';
 
 import './styles/InsightsPage.css'; 
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Define API Base URL
+
 const InsightsPage = () => {
   const { token, loading: authLoading } = useAuth(); 
   const [sustainabilityData, setSustainabilityData] = useState(null); 
@@ -18,7 +20,6 @@ const InsightsPage = () => {
     { id: 4, name: 'Use energy-efficient appliances for a week', completed: false },
   ]);
 
-  
   const calculateCarbonFootprint = useCallback((data) => {
     if (!data) return null; 
     const {
@@ -29,7 +30,6 @@ const InsightsPage = () => {
       plastic_items_used,
     } = data;
 
-    
     const commuteCarbon = (commute_distance || 0) * 0.192;
     const foodCarbon = (food_weight || 0) * 27;
     const electricityCarbon = (electricity_used || 0) * 0.4;
@@ -66,10 +66,8 @@ const InsightsPage = () => {
     return recommendations;
   }, []); 
 
-  
   useEffect(() => {
     const fetchSustainabilityData = async () => {
-      
       if (authLoading) {
         return;
       }
@@ -83,10 +81,9 @@ const InsightsPage = () => {
       setDataError(null); 
 
       try {
-        const response = await axios.get('http://localhost:5000/api/sustainability', {
+        const response = await axios.get(`${API_BASE_URL}/api/sustainability`, { // Updated API call
           headers: { Authorization: `Bearer ${token}` }
         });
-        
         
         if (response.data && response.data.length > 0) {
           setSustainabilityData(response.data[0]); 
@@ -112,7 +109,6 @@ const InsightsPage = () => {
     fetchSustainabilityData();
   }, [token, authLoading]); 
 
-  
   useEffect(() => {
     if (sustainabilityData) {
       const totalCarbon = calculateCarbonFootprint(sustainabilityData);
@@ -137,8 +133,6 @@ const InsightsPage = () => {
           : challenge
       )
     );
-    
-    
   };
 
   const recommendations = getRecommendations(sustainabilityData);

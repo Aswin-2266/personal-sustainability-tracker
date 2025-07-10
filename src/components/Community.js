@@ -5,24 +5,23 @@ import { useAuth } from './AuthContext';
 
 import './styles/Community.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Define API Base URL
+
 function Community() {
     const { token, loading: authLoading } = useAuth(); 
     const [leaderboard, setLeaderboard] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(null); 
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
-            
             if (authLoading) {
                 return;
             }
 
             if (!token) {
-                
                 setError('You need to be logged in to view the leaderboard.');
                 setLoading(false);
-                
                 return;
             }
 
@@ -30,7 +29,7 @@ function Community() {
             setError(null); 
 
             try {
-                const response = await axios.get('http://localhost:5000/api/community/leaderboard', {
+                const response = await axios.get(`${API_BASE_URL}/api/community/leaderboard`, { // Updated API call
                     headers: {
                         Authorization: `Bearer ${token}` 
                     }
@@ -39,20 +38,14 @@ function Community() {
             } catch (err) {
                 console.error('Error fetching leaderboard data:', err);
                 if (err.response) {
-                    
-                    
                     if (err.response.status === 401 || err.response.status === 403) {
                         setError('Access denied. Please log in again.');
-                        
-                        
                     } else {
                         setError(err.response.data.message || 'Failed to load leaderboard data.');
                     }
                 } else if (err.request) {
-                    
                     setError('No response from server. Please check your network connection.');
                 } else {
-                    
                     setError('Error setting up the request.');
                 }
             } finally {
@@ -94,7 +87,7 @@ function Community() {
                             </tr>
                         ) : leaderboard.length > 0 ? (
                             leaderboard.map((user, index) => (
-                                <tr key={user.username}> {}
+                                <tr key={user.username}> 
                                     <td className="rank-cell">{index + 1}</td>
                                     <td className="username-cell">{user.username}</td>
                                     <td className="points-cell">{user.points.toLocaleString()}</td>
