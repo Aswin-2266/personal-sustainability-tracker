@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useAuth } from './AuthContext';
 import './styles/TrackerForm.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 function TrackerForm() {
   const { token } = useAuth();
   const [formData, setFormData] = useState({
@@ -48,7 +50,7 @@ function TrackerForm() {
     setIsSubmitting(true);
     
     try {
-      await axios.post('http://localhost:5000/api/sustainability', {
+      await axios.post(`${API_BASE_URL}/api/sustainability`, {
         commute_type: formData.commuteType,
         commute_distance: parseFloat(formData.commuteDistance),
         diet_type: formData.dietType,
@@ -198,11 +200,11 @@ function TrackerForm() {
           />
         </div>
 
-         <button 
+        <button 
           type="submit" 
           className={`submit-btn ${isSubmitting ? 'loading' : ''}`}
           disabled={isSubmitting}
-          >
+        >
           {isSubmitting ? 'Submitting...' : 'Submit Data'}
         </button>
       </form>

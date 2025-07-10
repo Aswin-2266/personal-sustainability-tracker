@@ -7,6 +7,7 @@ import { useAuth } from './AuthContext';
 
 import "./styles/ProgressPage.css"; 
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const ProgressPage = () => {
   const { token, loading: authLoading } = useAuth(); 
@@ -15,19 +16,16 @@ const ProgressPage = () => {
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(null); 
 
-  // This function handles the navigation when the Home button is clicked.
-  // It redirects the browser to the '/dashboard' route.
-  // If your main dashboard/home page is at a different URL (e.g., '/'), adjust this path accordingly.
   const goToDashboard = () => {
     window.location.href = '/dashboard'; 
   };
 
   const chartColors = {
-    commute: '#673AB7',     
-    food: '#00ACC1',        
+    commute: '#673AB7', 
+    food: '#00ACC1', 
     electricity: '#FFCA28', 
-    water: '#9575CD',       
-    plastic: '#EF5350',     
+    water: '#9575CD', 
+    plastic: '#EF5350', 
   };
 
   const fetchProgress = useCallback(async (period) => {
@@ -45,7 +43,7 @@ const ProgressPage = () => {
     setData([]);
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/user-progress/${period}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/user-progress/${period}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -162,4 +160,4 @@ const ProgressPage = () => {
   );
 };
 
-export default ProgressPage; // Corrected export name
+export default ProgressPage;

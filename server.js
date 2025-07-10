@@ -8,18 +8,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 const fs = require('fs');
 const path = require('path');
-// const { sendLoginEmail } = require('./src/components/Mailer');
 const { sendLoginEmail, sendWelcomeEmail } = require('./src/components/Mailer');
 
-
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
-
 
 const runSchema = async () => {
   try {
@@ -32,9 +28,7 @@ const runSchema = async () => {
   }
 };
 
-
-runSchema();  
-
+runSchema();
 
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
@@ -44,27 +38,29 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
-app.use(cors());
-app.use(express.json()); 
-
+app.use(express.json());
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   
-  if (!token) return res.sendStatus(401); 
+  if (!token) return res.sendStatus(401);
   
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-        console.error("JWT verification failed:", err); 
-        return res.sendStatus(403); 
+        console.error("JWT verification failed:", err);
+        return res.sendStatus(403);
     }
-    req.user = user; 
-    next(); 
+    req.user = user;
+    next();
   });
 };
-
 
 app.post('/api/register', async (req, res) => {
   try {
@@ -117,12 +113,12 @@ app.post('/api/login', async (req, res) => {
     console.log(`Login email triggered for user: ${user.username}`);
     
     const token = jwt.sign(
-      { id: user.id, email: user.email, username: user.username }, 
+      { id: user.id, email: user.email, username: user.username },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' } 
+      { expiresIn: '24h' }
     );
     
-    console.log('User logged in:', user.username); 
+    console.log('User logged in:', user.username);
     
     res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
   } catch (err) {
@@ -131,11 +127,9 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-
-
 app.post('/api/sustainability', authenticateToken, async (req, res) => {
   try {
-    const { user } = req; 
+    const { user } = req;
     const {
       commute_type,
       commute_distance,
@@ -181,21 +175,17 @@ app.post('/api/sustainability', authenticateToken, async (req, res) => {
   }
 });
 
-
 app.get('/api/sustainability', authenticateToken, async (req, res) => {
   try {
-    const { user } = req; 
+    const { user } = req;
     const query = `
       SELECT 
         id, user_id, commute_type, commute_distance, diet_type, food_weight, 
         electricity_used, water_consumption, plastic_items_used,
-        -- FIX: Convert 'created_at' to UTC before formatting if it's TIMESTAMP WITHOUT TIME ZONE
-        -- Replace 'Your/Server/Timezone' with the actual timezone your PostgreSQL server operates in.
-        -- Examples: 'Asia/Kolkata', 'America/New_York', 'Europe/London'
         TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS created_at
       FROM sustainability_data 
       WHERE user_id = $1 
-      ORDER BY created_at DESC`; 
+      ORDER BY created_at DESC`;
       
     const result = await pool.query(query, [user.id]);
     res.json(result.rows);
@@ -205,22 +195,18 @@ app.get('/api/sustainability', authenticateToken, async (req, res) => {
   }
 });
 
-
 app.get('/api/verify', authenticateToken, (req, res) => {
-  
-  res.json({ user: req.user }); 
+  res.json({ user: req.user });
 });
 
-
 app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
-  const userId = req.user.id; 
+  const userId = req.user.id;
   const { period } = req.params;
 
   let query = '';
   let values = [userId];
-
   
-  const dateFormat = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'; 
+  const dateFormat = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"';
 
   if (period === 'today') {
     query = `
@@ -267,8 +253,8 @@ app.use('/api/insights', insightsRoute);
 
 app.get('/api/community/leaderboard', authenticateToken, async (req, res) => {
   try {
-    const query = 'SELECT username, points FROM leaderboard ORDER BY points DESC LIMIT 10'; 
-    const results = await pool.query(query); 
+    const query = 'SELECT username, points FROM leaderboard ORDER BY points DESC LIMIT 10';
+    const results = await pool.query(query);
     
     if (results.rows.length === 0) {
       return res.status(404).json({ message: 'No leaderboard data found' });
@@ -282,8 +268,8 @@ app.get('/api/community/leaderboard', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/user/activity', authenticateToken, async (req, res) => {
-  const userId = req.user.id; 
-  const { activityType } = req.body; 
+  const userId = req.user.id;
+  const { activityType } = req.body;
   
   if (!activityType) {
     return res.status(400).json({ message: 'Missing required field: activityType' });
@@ -293,8 +279,8 @@ app.post('/api/user/activity', authenticateToken, async (req, res) => {
   
   if (activityType === 'commute') points = 10;
   else if (activityType === 'recycle') points = 5;
-  else if (activityType === 'water_reduction') points = 8; 
-  else if (activityType === 'plastic_reduction') points = 7; 
+  else if (activityType === 'water_reduction') points = 8;
+  else if (activityType === 'plastic_reduction') points = 7;
   
   if (points === 0) {
       return res.status(400).json({ message: 'Unknown activity type or no points assigned.' });
@@ -302,7 +288,7 @@ app.post('/api/user/activity', authenticateToken, async (req, res) => {
 
   try {
     const query = 'UPDATE leaderboard SET points = points + $1 WHERE user_id = $2 RETURNING points';
-    const result = await pool.query(query, [points, userId]); 
+    const result = await pool.query(query, [points, userId]);
 
     if (result.rows.length === 0) {
         return res.status(404).json({ message: 'User not found in leaderboard.' });
