@@ -3,7 +3,7 @@
     require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
     // Import both email template functions
-    const { generateWelcomeEmailHtml, generateLoginEmailHtml } = require('./utils/emailTemplates');
+    const { generateWelcomeEmailHtml, generateLoginEmailHtml } = require('../utils/emailTemplates');
 
     const transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,

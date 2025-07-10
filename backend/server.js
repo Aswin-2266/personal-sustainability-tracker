@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 const fs = require('fs');
 const path = require('path');
-const { sendLoginEmail, sendWelcomeEmail } = require('../frontend/src/components/Mailer');
+const { sendLoginEmail, sendWelcomeEmail } = require('./src/components/Mailer');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -248,7 +248,7 @@ app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
   }
 });
     
-const insightsRoute = require('../frontend/routes/insights');
+const insightsRoute = require('./routes/insights');
 app.use('/api/insights', insightsRoute);
 
 app.get('/api/community/leaderboard', authenticateToken, async (req, res) => {
