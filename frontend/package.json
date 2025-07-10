@@ -1,5 +1,5 @@
 {
-  "name": "personal-sustaiability-tracker",
+  "name": "personal-sustainability-tracker-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,13 +8,6 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.9.0",
-    "bcrypt": "^5.1.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^7.0.3",
-    "pg": "^8.15.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
@@ -24,9 +17,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start-frontend": "react-scripts start",
-    "start-backend": "node server.js",
-    "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\"",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -51,7 +42,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
-    "concurrently": "^8.2.0",
-    "postcss": "^8.5.6"
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.4"
   }
 }
