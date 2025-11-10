@@ -126,7 +126,8 @@ app.post('/api/login', async (req, res) => {
     }
 
     const loginTime = new Date();
-    await sendLoginEmail(user.email, user.username, loginTime);
+    sendLoginEmail(user.email, user.username, loginTime)
+      .catch(err => console.error('Background login email error:', err)); 
     console.log(`Login email triggered for user: ${user.username}`);
     
     const token = jwt.sign(
