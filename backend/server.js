@@ -8,6 +8,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 const fs = require('fs');
 const path = require('path');
+
+// --- NEW CRITICAL FIX ---
+// Force Node.js to prefer IPv4 addresses over IPv6
+// This will solve the 'ENETUNREACH' error on Render
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first'); 
+// --- END OF FIX ---
+
 // Ensure this path is correct relative to your server.js
 // If server.js is in the root, and Mailer.js is in /src/components:
 const { sendLoginEmail, sendWelcomeEmail } = require('./src/components/Mailer'); 
@@ -16,17 +24,17 @@ let poolConfig;
 
 // Determine connection configuration based on environment
 if (process.env.DATABASE_URL) {
-    // Production (Render/Supabase): Use single URI, force IPv4
+    // Production (Render/Supabase): Use single URI
     console.log('Connecting using DATABASE_URL...');
     poolConfig = {
         connectionString: process.env.DATABASE_URL,
         ssl: {
             rejectUnauthorized: false
-        },
-        family: 4 // CRITICAL FIX: Forces IPv4 to bypass ENETUNREACH errors on Render
+        }
+        // We no longer need 'family: 4' here, as the global DNS fix handles it
     };
 } else {
-    // Local development OR Render fallback (using separate variables)
+    // Local development (using separate variables)
     console.log('Connecting using individual DB variables...');
     poolConfig = {
         user: process.env.DB_USER,
@@ -34,10 +42,7 @@ if (process.env.DATABASE_URL) {
         database: process.env.DB_NAME,
         password: process.env.DB_PASSWORD,
         port: process.env.DB_PORT || 5432,
-        ssl: { // <-- ADDED SSL CONFIG
-            rejectUnauthorized: false
-        },
-        family: 4 // <-- ADDED CRITICAL FIX
+        ssl: false
     };
 }
 
@@ -225,7 +230,7 @@ app.get('/api/sustainability', authenticateToken, async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error('Error fetching sustainability data:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(5Two-hundred).json({ error: 'Internal server error' });
     }
 });
 
