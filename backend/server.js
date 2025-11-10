@@ -8,13 +8,16 @@ const app = express();
 const port = process.env.PORT || 5000;
 const fs = require('fs');
 const path = require('path');
-const { sendLoginEmail, sendWelcomeEmail } = require('./src/components/Mailer');
+// Ensure this path is correct relative to your server.js
+// If server.js is in the root, and Mailer.js is in /src/components:
+const { sendLoginEmail, sendWelcomeEmail } = require('./src/components/Mailer'); 
 
 let poolConfig;
 
 // Determine connection configuration based on environment
 if (process.env.DATABASE_URL) {
     // Production (Render/Supabase): Use single URI, force IPv4
+    console.log('Connecting using DATABASE_URL...');
     poolConfig = {
         connectionString: process.env.DATABASE_URL,
         ssl: {
@@ -23,14 +26,18 @@ if (process.env.DATABASE_URL) {
         family: 4 // CRITICAL FIX: Forces IPv4 to bypass ENETUNREACH errors on Render
     };
 } else {
-    // Local development (using separate variables)
+    // Local development OR Render fallback (using separate variables)
+    console.log('Connecting using individual DB variables...');
     poolConfig = {
         user: process.env.DB_USER,
         host: process.env.DB_HOST,
         database: process.env.DB_NAME,
         password: process.env.DB_PASSWORD,
         port: process.env.DB_PORT || 5432,
-        ssl: false
+        ssl: { // <-- ADDED SSL CONFIG
+            rejectUnauthorized: false
+        },
+        family: 4 // <-- ADDED CRITICAL FIX
     };
 }
 
@@ -38,6 +45,7 @@ const pool = new Pool(poolConfig);
 
 const runSchema = async () => {
     try {
+        // Assuming 'db/schema.sql' exists relative to this server.js file
         const schemaPath = path.join(__dirname, 'db', 'schema.sql');
         const schema = fs.readFileSync(schemaPath, 'utf8');
         await pool.query(schema);
@@ -47,7 +55,13 @@ const runSchema = async () => {
     }
 };
 
-runSchema();
+// Check if db/schema.sql exists before trying to run it
+if (fs.existsSync(path.join(__dirname, 'db', 'schema.sql'))) {
+    runSchema();
+} else {
+    console.warn('db/schema.sql not found, skipping schema creation.');
+}
+
 
 pool.query('SELECT NOW()', (err, res) => {
     if (err) {
@@ -197,6 +211,7 @@ app.post('/api/sustainability', authenticateToken, async (req, res) => {
 app.get('/api/sustainability', authenticateToken, async (req, res) => {
     try {
         const { user } = req;
+        // IMPORTANT: Make sure 'Asia/Kolkata' is the correct timezone for your server/db
         const query = `
             SELECT 
                 id, user_id, commute_type, commute_distance, diet_type, food_weight, 
@@ -204,7 +219,7 @@ app.get('/api/sustainability', authenticateToken, async (req, res) => {
                 TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS created_at
             FROM sustainability_data 
             WHERE user_id = $1 
-            ORDER BY created_at DESC`; 
+            ORDER BY created_at DESC`;
             
         const result = await pool.query(query, [user.id]);
         res.json(result.rows);
@@ -225,12 +240,14 @@ app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
     let query = '';
     let values = [userId];
     
+    // IMPORTANT: Make sure 'Asia/Kolkata' is the correct timezone for your server/db
     const dateFormat = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"';
+    const timezoneConversion = "AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC'";
 
     if (period === 'today') {
         query = `
             SELECT 
-                TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', '${dateFormat}') AS created_at, 
+                TO_CHAR(created_at ${timezoneConversion}, '${dateFormat}') AS created_at, 
                 commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
             FROM sustainability_data 
             WHERE user_id = $1 
@@ -239,7 +256,7 @@ app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
     } else if (period === 'weekly') {
         query = `
             SELECT 
-                TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', '${dateFormat}') AS created_at, 
+                TO_CHAR(created_at ${timezoneConversion}, '${dateFormat}') AS created_at, 
                 commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
             FROM sustainability_data 
             WHERE user_id = $1 
@@ -248,7 +265,7 @@ app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
     } else if (period === 'monthly') {
         query = `
             SELECT 
-                TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC', '${dateFormat}') AS created_at, 
+                TO_CHAR(created_at ${timezoneConversion}, '${dateFormat}') AS created_at, 
                 commute_distance, food_weight, electricity_used, water_consumption, plastic_items_used 
             FROM sustainability_data 
             WHERE user_id = $1 
@@ -267,8 +284,14 @@ app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
     }
 });
     
-const insightsRoute = require('./routes/insights');
-app.use('/api/insights', insightsRoute);
+// Assuming 'routes/insights.js' exists relative to server.js
+if (fs.existsSync(path.join(__dirname, 'routes', 'insights.js'))) {
+    const insightsRoute = require('./routes/insights');
+    app.use('/api/insights', insightsRoute);
+} else {
+    console.warn('routes/insights.js not found, skipping insights route.');
+}
+
 
 app.get('/api/community/leaderboard', authenticateToken, async (req, res) => {
     try {
