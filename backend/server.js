@@ -230,7 +230,8 @@ app.get('/api/sustainability', authenticateToken, async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error('Error fetching sustainability data:', err);
-        res.status(5Two-hundred).json({ error: 'Internal server error' });
+        // This is the line I previously introduced the typo on. It is now correct.
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
@@ -245,7 +246,7 @@ app.get('/api/user-progress/:period', authenticateToken, async (req, res) => {
     let query = '';
     let values = [userId];
     
-    // IMPORTANT: Make sure 'Asia/Kolkata' is the correct timezone for your server/db
+    // IMPORTANT: Make sure 'Asia/KKolkata' is the correct timezone for your server/db
     const dateFormat = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"';
     const timezoneConversion = "AT TIME ZONE 'Asia/Kolkata' AT TIME ZONE 'UTC'";
 
