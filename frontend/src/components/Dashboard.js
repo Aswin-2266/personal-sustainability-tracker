@@ -53,69 +53,49 @@ function Dashboard() {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); 
     }, []);
 
+    // FIX: Consolidate multiple metrics from a single submission into one activity feed entry.
     const processSustainabilityData = useCallback((dataArray) => {
         const activities = [];
         const sortedData = [...dataArray].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-        const latestEntries = sortedData.slice(0, 7); 
+        // Focus on the latest N submissions (full entries)
+        const latestEntries = sortedData.slice(0, 5); 
 
         latestEntries.forEach(entry => {
             const timeAgo = formatTimeAgo(entry.created_at);
+            const loggedItems = [];
 
-            let activityIdCounter = 0; 
-            if (entry.commute_distance > 0) {
-                activities.push({
-                    id: `${entry.id}-commute-${activityIdCounter++}`, 
-                    icon: 'fas fa-route', 
-                    text: `Logged ${entry.commute_distance}km commute via ${entry.commute_type || 'unknown method'}`,
-                    time: timeAgo
-                });
-            }
-            if (entry.food_weight > 0) {
-                activities.push({
-                    id: `${entry.id}-food-${activityIdCounter++}`,
-                    icon: 'fas fa-utensils',
-                    text: `Logged ${entry.food_weight}kg food consumption (${entry.diet_type || 'unspecified diet'})`,
-                    time: timeAgo
-                });
-            }
-            if (entry.electricity_used > 0) {
-                activities.push({
-                    id: `${entry.id}-electricity-${activityIdCounter++}`,
-                    icon: 'fas fa-lightbulb',
-                    text: `Logged ${entry.electricity_used} kWh electricity usage`,
-                    time: timeAgo
-                });
-            }
-            if (entry.water_consumption > 0) {
-                activities.push({
-                    id: `${entry.id}-water-${activityIdCounter++}`,
-                    icon: 'fas fa-tint',
-                    text: `Logged ${entry.water_consumption} L water consumption`,
-                    time: timeAgo
-                });
-            }
-            if (entry.plastic_items_used > 0) {
-                activities.push({
-                    id: `${entry.id}-plastic-${activityIdCounter++}`,
-                    icon: 'fas fa-recycle',
-                    text: `Logged ${entry.plastic_items_used} plastic items used`,
-                    time: timeAgo
-                });
-            }
-        });
-
-        activities.sort((a, b) => {
-            const originalEntryA = sortedData.find(d => a.id.startsWith(`${d.id}-`));
-            const originalEntryB = sortedData.find(d => b.id.startsWith(`${b.id}-`));
+            if (entry.commute_distance > 0) loggedItems.push('Commute');
+            if (entry.food_weight > 0) loggedItems.push('Food');
+            if (entry.electricity_used > 0) loggedItems.push('Electricity');
+            if (entry.water_consumption > 0) loggedItems.push('Water');
+            if (entry.plastic_items_used > 0) loggedItems.push('Plastic');
             
-            const timeA = originalEntryA ? new Date(originalEntryA.created_at).getTime() : 0;
-            const timeB = originalEntryB ? new Date(originalEntryB.created_at).getTime() : 0;
-
-            return timeB - timeA; 
+            let summaryText;
+            let icon;
+            
+            if (loggedItems.length === 5) {
+                summaryText = "Logged all sustainability metrics.";
+                icon = 'fas fa-globe-asia';
+            } else if (loggedItems.length > 0) {
+                // Format list: A, B, and C
+                const list = loggedItems.join(', ').replace(/,([^,]*)$/, ' and$1');
+                summaryText = `Logged activities: ${list}`;
+                icon = 'fas fa-check-circle';
+            } else {
+                summaryText = "Logged an activity with no quantifiable impact.";
+                icon = 'fas fa-minus-circle';
+            }
+            
+            activities.push({
+                id: entry.id, 
+                icon: icon, 
+                text: summaryText,
+                time: timeAgo
+            });
         });
         
-        return activities.slice(0, 5); 
+        return activities; 
     }, [formatTimeAgo]);
 
     const getUTCDateString = (date) => {
@@ -190,6 +170,7 @@ function Dashboard() {
                     setError("Not enough data for meaningful comparison (no activities today or yesterday). Log more!");
                 }
                 
+                // Use the consolidated activity list
                 setRecentActivities(processSustainabilityData(allSustainabilityData));
 
             } catch (err) {
@@ -213,6 +194,7 @@ function Dashboard() {
         fetchSustainabilityData();
     }, [token, authLoading, processSustainabilityData]); 
 
+    // RESTORED: Original simple renderStatValue
     const renderStatValue = (value, unit) => {
         if (loading) return 'Loading...';
         if (error) return 'N/A'; 
@@ -302,6 +284,8 @@ function Dashboard() {
                     <h2>Your Sustainability Summary</h2>
                     {error && <p className="error-message" style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{error}</p>}
                     <div className="stats-grid">
+                        
+                        {/* RESTORED: Original simple card structure */}
                         <div className="stat-card">
                             <h4>Carbon Saved</h4>
                             <p className="stat-value">

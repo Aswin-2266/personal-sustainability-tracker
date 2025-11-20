@@ -100,14 +100,14 @@ function generateWelcomeEmailHtml(username) {
                 <p>Welcome to the **Personal Sustainability Tracker**! We're thrilled to have you join our community dedicated to making a real impact on the environment.</p>
                 <p>Our app helps you easily monitor your daily habits related to commute, food, electricity, water, and plastic, and visualize your personal carbon footprint. Get ready to transform your eco-journey!</p>
                 <div class="button-container">
-                    <a href="http://localhost:3000/dashboard" class="button">Go to Your Dashboard</a>
+                    <a href="https://personal-sustainability-tracker.vercel.app/dashboard" class="button">Go to Your Dashboard</a>
                 </div>
                 <p>If you have any questions or need assistance, feel free to reply to this email.</p>
                 <p>Best regards,<br>The Personal Sustainability Tracker Team</p>
             </div>
             <div class="footer">
                 <p>&copy; 2025 Personal Sustainability Tracker. All rights reserved.</p>
-                <p><a href="http://localhost:3000/privacy">Privacy Policy</a> | <a href="http://localhost:3000/terms">Terms of Service</a></p>
+                <p><a href="https://personal-sustainability-tracker.vercel.app/privacy">Privacy Policy</a> | <a href="https://personal-sustainability-tracker.vercel.app/terms">Terms of Service</a></p>
             </div>
         </div>
     </body>
@@ -227,14 +227,14 @@ function generateLoginEmailHtml(username, loginTime) {
                     <p><strong>Login Time:</strong> ${formattedLoginTime}</p>
                     <p>If this activity was not you, please take immediate action to secure your account.</p>
                     <div class="button-container">
-                        <a href="http://localhost:3000/settings" class="button">Review Account Settings</a>
+                        <a href="https://personal-sustainability-tracker.vercel.app/dashboard" class="button">Review Account Settings</a>
                     </div>
                     <p>If you have any concerns, please contact our support team.</p>
                     <p>Stay Green,<br>The Personal Sustainability Tracker Team</p>
                 </div>
                 <div class="footer">
                     <p>&copy; 2025 Personal Sustainability Tracker. All rights reserved.</p>
-                    <p><a href="http://localhost:3000/privacy">Privacy Policy</a> | <a href="http://localhost:3000/terms">Terms of Service</a></p>
+                    <p><a href="https://personal-sustainability-tracker.vercel.app/privacy">Privacy Policy</a> | <a href="https://personal-sustainability-tracker.vercel.app/terms">Terms of Service</a></p>
                 </div>
             </div>
         </body>

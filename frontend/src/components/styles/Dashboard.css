@@ -1,4 +1,4 @@
-
+/* frontend/src/components/styles/Dashboard.css */
 
 :root {
     
@@ -53,9 +53,20 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 2rem;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
     color: white;
     box-shadow: var(--shadow-medium);
+
+    /* MODIFIED BACKGROUND: Layered Gradient for Subtle Depth */
+    background: 
+        /* 1. Subtle Radial Light Source (top right) */
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 40%),
+        /* 2. Base Linear Gradient */
+        linear-gradient(135deg, var(--primary), var(--primary-dark));
+    
+    /* Ensure the radial gradient covers a larger area */
+    background-size: 150% 150%, 100% 100%;
+    background-position: top right, center center;
+    background-repeat: no-repeat;
 }
 
 .user-greeting h1 {
@@ -155,9 +166,10 @@ body {
     gap: 0.6rem;
     padding: 0.75rem 1.25rem;
     text-decoration: none;
-    color: var(--text-medium);
-    font-weight: 500;
-    border-radius: var(--border-radius-sm);
+    /* MODIFIED: Increased font weight and default color for better contrast */
+    color: var(--text-dark); 
+    font-weight: 600; 
+    border-radius: 50px; /* MODIFIED: Creates a clear pill-shaped button */
     transition: all 0.3s ease;
     white-space: nowrap;
 }
@@ -165,7 +177,8 @@ body {
 .navbar-item:hover {
     background-color: var(--accent-dark-bg);
     color: var(--accent);
-    transform: translateY(-2px);
+    /* MODIFIED: Removed unnatural vertical movement */
+    transform: none; 
 }
 
 .navbar-item.active {
@@ -176,7 +189,8 @@ body {
 
 .navbar-item i {
     font-size: 1.1rem;
-    color: var(--text-medium);
+    /* MODIFIED: Increased default icon contrast */
+    color: var(--text-dark); 
     transition: color 0.3s ease;
 }
 
@@ -209,12 +223,14 @@ body {
 }
 
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    display: flex; 
+    flex-wrap: nowrap; 
+    justify-content: space-between; 
     gap: 1.75rem;
 }
 
 .stat-card {
+    flex: 1 1 30%; 
     padding: 1.75rem;
     background: var(--card-bg);
     border-radius: var(--border-radius-md);
@@ -410,8 +426,12 @@ body {
     }
 
     .stats-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column; 
         gap: 1.5rem;
+    }
+
+    .stat-card {
+        flex: 1 1 100%; 
     }
 
     .quick-stats h2,
