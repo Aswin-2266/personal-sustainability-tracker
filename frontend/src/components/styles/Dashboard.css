@@ -69,6 +69,24 @@ body {
     background-repeat: no-repeat;
 }
 
+/* NEW: Container for app title and user greeting */
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* NEW: Style for the subtle app name in the header */
+.app-mini-title {
+    margin: 0;
+    font-size: 0.9rem; /* Small and subtle */
+    font-weight: 500;
+    color: var(--accent-light); /* Subtle accent color */
+    opacity: 0.9;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
 .user-greeting h1 {
     margin: 0;
     font-size: 1.8rem;
@@ -208,6 +226,21 @@ body {
 .dashboard-main {
     padding: 0 2rem 2rem;
 }
+
+.weekly-progress-graph {
+    /* Ensure top padding here if needed, but remove inline style from Dashboard.js */
+    padding: 1.5rem 2rem 0;
+}
+
+/* NEW: Style for the chart container */
+.chart-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-light);
+    padding: 1.5rem; /* Add padding inside the card */
+}
+
 
 .quick-stats {
     margin-bottom: 2.5rem;
@@ -353,6 +386,11 @@ body {
         padding: 1.2rem;
     }
 
+    /* NEW: Ensure header-left takes full width on mobile */
+    .header-left {
+        width: 100%;
+    }
+    
     .user-greeting h1 {
         font-size: 1.6rem;
     }

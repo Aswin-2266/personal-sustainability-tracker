@@ -14,25 +14,7 @@ import Community from './components/Community';
 import './App.css'; 
 
 
-function Header() {
-  const location = useLocation();
-
-  
-  
-  if (location.pathname !== '/dashboard' && 
-      location.pathname !== '/tracker' && 
-      location.pathname !== '/progress' &&
-      location.pathname !== '/insights' &&
-      location.pathname !== '/community') { 
-    return null; 
-  }
-
-  return (
-    <div className="app-main-title-container"> {}
-      <h1 className="app-main-title">Personal Sustainability Tracker</h1>
-    </div>
-  );
-}
+// Removed the redundant Header function
 
 function App() {
   return (
@@ -40,7 +22,7 @@ function App() {
       <Router>
         <div className="App">
           {}
-          <Header />
+          {/* REMOVED: <Header /> */}
           
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -235,9 +235,14 @@ function Dashboard() {
     return (
         <div className="dashboard">
             <header className="dashboard-header">
-                <div className="user-greeting">
-                    <h1>Welcome back, <span className="username">{user?.username || 'Guest'}</span>!</h1>
+                {/* MODIFIED: Container for app title and user greeting */}
+                <div className="header-left">
+                    <h2 className="app-mini-title">Personal Sustainability Tracker</h2>
+                    <div className="user-greeting">
+                        <h1>Welcome back, <span className="username">{user?.username || 'Guest'}</span>!</h1>
+                    </div>
                 </div>
+                
                 <button className="logout-btn" onClick={logout}>
                     <i className="fas fa-sign-out-alt"></i> Sign Out
                 </button>
@@ -276,7 +281,10 @@ function Dashboard() {
 
             <section className="weekly-progress-graph">
                 <h2 style={{ padding: '0 2rem' }}>Weekly Progress</h2>
-                <WeeklyProgressChart />
+                {/* MODIFIED: Wrap chart in a card container for visual consistency */}
+                <div className="chart-card">
+                    <WeeklyProgressChart />
+                </div>
             </section>
             
             <main className="dashboard-main">
