@@ -14,9 +14,10 @@ function Signup() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(''); 
+  // REMOVED: success state (navigating immediately)
   const [showPassword, setShowPassword] = useState(false); 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
+  const [isSubmitting, setIsSubmitting] = useState(false); // ADDED: Submitting state
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -32,43 +33,37 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault(); 
     setError(''); 
-    setSuccess(''); 
+    // REMOVED: setSuccess(''); 
 
     
     if (formData.password !== formData.confirmPassword) {
       return setError('Passwords do not match.');
     }
 
+    setIsSubmitting(true); // Set submitting state
+
     try {
       await register(formData.username, formData.email, formData.password); 
-      setSuccess('Signup successful! You can now log in.'); 
       
-      
-      setFormData(prev => ({
-        ...prev,
-        password: '',
-        confirmPassword: ''
-      }));
-
-      
-      setTimeout(() => navigate('/login'), 2000); 
+      // MODIFIED: Navigate immediately after successful registration to prevent double-click issue
+      navigate('/login'); 
       
     } catch (err) {
       
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
+      setIsSubmitting(false); // Reset submitting state on failure
     }
   };
 
   return (
-    <div className="auth-page-container"> {}
-      <h1 className="app-title"> {}
+    <div className="auth-page-container">
+      <h1 className="app-title"> 
         PERSONAL SUSTAINABILITY TRACKER
       </h1>
-      <div className="auth-form-card"> {}
+      <div className="auth-form-card"> 
         <h2>Sign Up</h2>
-        {}
+        {/* REMOVED: success message display */}
         {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="username">Username</label>
@@ -92,9 +87,9 @@ function Signup() {
               required
             />
           </div>
-          <div className="form-group password-group"> {}
+          <div className="form-group password-group"> 
             <label htmlFor="password">Password</label>
-            <div className="password-input-wrapper"> {}
+            <div className="password-input-wrapper"> 
               <input
                 id="password" 
                 type={showPassword ? 'text' : 'password'} 
@@ -109,14 +104,13 @@ function Signup() {
                 onClick={() => setShowPassword(!showPassword)} 
                 aria-label={showPassword ? 'Hide password' : 'Show password'} 
               >
-                {}
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
           </div>
-          <div className="form-group password-group"> {}
+          <div className="form-group password-group"> 
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <div className="password-input-wrapper"> {}
+            <div className="password-input-wrapper"> 
               <input
                 id="confirmPassword" 
                 type={showConfirmPassword ? 'text' : 'password'} 
@@ -131,14 +125,19 @@ function Signup() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
                 aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'} 
               >
-                {}
                 {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
           </div>
-          <button type="submit" className="auth-button">Sign Up</button> {}
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={isSubmitting} // Disable button when submitting
+          >
+            {isSubmitting ? 'Signing Up...' : 'Sign Up'} {/* Conditional button text */}
+          </button>
         </form>
-        <p className="auth-link-text"> {}
+        <p className="auth-link-text"> 
           Already have an account? <a href="/login">Log in</a>
         </p>
       </div>

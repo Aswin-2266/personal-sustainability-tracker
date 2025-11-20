@@ -14,7 +14,8 @@ function Login() {
   });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false); 
-  const { login } = useAuth(); // AuthContext's login function already uses API_BASE_URL after AuthContext.js update
+  const [isSubmitting, setIsSubmitting] = useState(false); // ADDED: Submitting state
+  const { login } = useAuth(); 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,13 +29,15 @@ function Login() {
     e.preventDefault(); 
     setError(''); 
     
+    setIsSubmitting(true); // Set submitting state
+    
     try {
-      // The login function in AuthContext.js handles the API call,
-      // and it's being updated to use API_BASE_URL.
       await login(formData.email, formData.password); 
+      // Successful login, navigate. isSubmitting state is reset on component unmount.
       navigate('/dashboard'); 
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
+      setIsSubmitting(false); // Reset submitting state on failure
     }
   };
 
@@ -79,7 +82,13 @@ function Login() {
               </button>
             </div>
           </div>
-          <button type="submit" className="auth-button">Log In</button> 
+          <button 
+            type="submit" 
+            className="auth-button"
+            disabled={isSubmitting} // Disable button when submitting
+          >
+            {isSubmitting ? 'Logging In...' : 'Log In'} {/* Conditional button text */}
+          </button> 
         </form>
         <p className="auth-link-text"> 
           Don't have an account? <a href="/signup">Sign up</a>
